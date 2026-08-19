@@ -1,26 +1,219 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/* ==========================================================================
+   AURÉLIA — GLOBAL DESIGN TOKENS
+   Every colour in the site resolves back to one of these variables.
+   Tailwind v4 turns each `--color-*` into utilities: bg-primary, text-cream…
+   ========================================================================== */
+@theme {
+  /* ── Brand ─────────────────────────────────────────────── */
+  --color-primary: #e4c79f; /* the house gold — user supplied  */
+  --color-primary-soft: #f3e6d1; /* lifted gold, for hover / highlights   */
+  --color-primary-deep: #c3a271; /* pressed gold, for gradients + borders */
+  --color-primary-dim: #7d6749; /* gold at rest on dark, for hairlines   */
+
+  /* ── Surfaces (dark, warm, roasted) ────────────────────── */
+  --color-ink: #080503; /* page floor        */
+  --color-espresso: #120b07; /* section base      */
+  --color-mocha: #1d130c; /* raised panel      */
+  --color-cocoa: #2e1d12; /* card surface      */
+  --color-bark: #462c1a; /* border / divider  */
+
+  /* ── Content ───────────────────────────────────────────── */
+  --color-cream: #f8f1e7; /* primary text      */
+  --color-sand: #cdb99d; /* secondary text    */
+  --color-muted: #8a7255; /* tertiary / meta   */
+
+  /* ── Type ──────────────────────────────────────────────── */
+  --font-display: var(--font-cormorant), "Times New Roman", Georgia, serif;
+  --font-sans: var(--font-jost), ui-sans-serif, system-ui, sans-serif;
+
+  /* ── Motion ────────────────────────────────────────────── */
+  --ease-silk: cubic-bezier(0.22, 1, 0.36, 1);
+
+  /* ── Depth (the "3D" of the design) ────────────────────── */
+  --shadow-lift: 0 30px 60px -20px rgb(0 0 0 / 0.85);
+  --shadow-float: 0 50px 90px -30px rgb(0 0 0 / 0.9);
+  --shadow-gold: 0 0 60px -10px rgb(228 199 159 / 0.35);
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    -webkit-tap-highlight-color: transparent;
+  }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+  body {
+    background-color: var(--color-ink);
+    color: var(--color-cream);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    overflow-x: hidden;
+  }
+
+  ::selection {
+    background-color: var(--color-primary);
+    color: var(--color-ink);
+  }
+
+  /* A slim, gold scrollbar keeps the chrome on-brand. */
+  ::-webkit-scrollbar {
+    width: 9px;
+  }
+  ::-webkit-scrollbar-track {
+    background: var(--color-espresso);
+  }
+  ::-webkit-scrollbar-thumb {
+    background: linear-gradient(var(--color-primary-deep), var(--color-primary-dim));
+    border-radius: 9999px;
+  }
+
+  /* Elements the reveal engine will animate in start hidden, but only when
+     JS is actually driving them — see .js-anim on <html>. */
+  .js-anim [data-reveal] {
+    opacity: 0;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* ==========================================================================
+   UTILITIES
+   ========================================================================== */
+
+/* Page gutter — one place to tune the site-wide max width. */
+@utility shell {
+  margin-inline: auto;
+  width: 100%;
+  max-width: 1440px;
+  padding-inline: 3rem;
+
+  @media (width <= 64rem) {
+    padding-inline: 2rem;
+  }
+  @media (width <= 40rem) {
+    padding-inline: 1.25rem;
+  }
+}
+
+/* Metal-leaf gradient text used on numerals and accent words. */
+@utility text-gilded {
+  background-image: linear-gradient(
+    100deg,
+    var(--color-primary-deep) 0%,
+    var(--color-primary-soft) 30%,
+    var(--color-primary) 55%,
+    var(--color-primary-deep) 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Hairline gold rule with a soft falloff at both ends. */
+@utility rule-gold {
+  height: 1px;
+  background-image: linear-gradient(
+    90deg,
+    transparent,
+    var(--color-primary-dim) 20%,
+    var(--color-primary) 50%,
+    var(--color-primary-dim) 80%,
+    transparent
+  );
+}
+
+/* Frosted panel — the base of every card in the design. */
+@utility pane {
+  background-image: linear-gradient(
+    160deg,
+    rgb(70 44 26 / 0.55) 0%,
+    rgb(29 19 12 / 0.85) 45%,
+    rgb(8 5 3 / 0.9) 100%
+  );
+  border: 1px solid rgb(228 199 159 / 0.14);
+  backdrop-filter: blur(14px);
+}
+
+/* Fine film grain — the single cheapest way to make flat gradients read
+   as photographed rather than rendered. */
+@utility grain {
+  position: relative;
+
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.35;
+    mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
+  }
+}
+
+/* Perspective root for the tilting cards. */
+@utility stage {
+  perspective: 1400px;
+  transform-style: preserve-3d;
+}
+
+/* Clipping frame for line-by-line headline reveals. */
+@utility line-mask {
+  overflow: hidden;
+  display: block;
+  padding-block: 0.06em;
+}
+
+/* Scroll cue — a bead of gold falling down a hairline. */
+@keyframes drop {
+  0% {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  35% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(240%);
+    opacity: 0;
+  }
+}
+
+/* Endless ticker used by the marquee band. */
+@keyframes creep {
+  to {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  .js-anim [data-reveal] {
+    opacity: 1;
+  }
+
+  /* Without the pinned rig the four craft panels would sit off-screen to the
+     right, unreachable. Stack them instead. */
+  [data-craft-rig] {
+    height: auto;
+    overflow: visible;
+  }
+  [data-craft-track] {
+    width: 100%;
+    flex-direction: column;
+    gap: 5rem;
+    padding-block: 3rem;
+  }
+  [data-craft-panel] {
+    width: 100%;
+    height: auto;
+  }
+  [data-craft-label] {
+    position: relative;
+    padding-top: 5rem;
+  }
+  [data-craft-progress] {
+    display: none;
+  }
 }
