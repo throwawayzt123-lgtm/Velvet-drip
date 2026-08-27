@@ -7,7 +7,7 @@ export const BRAND = {
   address: "18 Marlowe Lane, Fitzrovia, London W1T",
   hours: "Mon–Fri 07:00–19:00 · Sat–Sun 08:00–18:00",
   phone: "+44 20 7946 0812",
-  email: "contact@nofilter.coffee",
+  email: "contact@velvet.coffee",
 } as const;
 
 export const NAV_LINKS = [

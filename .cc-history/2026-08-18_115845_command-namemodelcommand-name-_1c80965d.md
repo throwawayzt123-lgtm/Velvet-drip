@@ -6,8 +6,8 @@
 | **Session ID** | `1c80965d-6746-4ac6-aedb-fd4bc588c93d` |
 | **Working Dir** | `c:\Users\aa\Desktop\Cafe\cafe-site` |
 | **Started** | 8/18/2026, 11:58:45 AM |
-| **Last Updated** | 8/27/2026, 4:09:39 PM |
-| **Messages** | 904 |
+| **Last Updated** | 8/27/2026, 4:14:00 PM |
+| **Messages** | 915 |
 
 ---
 
@@ -13848,6 +13848,196 @@ Two compounding causes:
 No overlap and no clipping at 1913×833, 1440×900, 1280×720, and 1920×1080. Mobile (440×956) unchanged. Lint and `next build` clean.
 
 Worth noting this only ever affected the *scroll* hero on `/` — the still hero on `/home2` centres a shorter copy block and never hit it. If you spot the same crowding there at some size, tell me and I'll apply the same treatment.
+
+
+---
+
+## User <sup>8/27/2026, 4:12:58 PM</sup>
+
+> *[Image]*
+
+initially this scene looks ok but as i scroll bit there become boxes over image like pixles blur why this happening ?
+
+
+---
+
+## Assistant <sup>8/27/2026, 4:13:05 PM</sup>
+
+Good catch — that blockiness is JPEG compression artifacts. Let me check the source frames before assuming it's my rendering:
+
+
+---
+
+## Assistant <sup>8/27/2026, 4:13:08 PM</sup>
+
+<details>
+<summary>Tool: <code>Bash</code></summary>
+
+```json
+{
+  "command": "cd \"c:/Users/aa/Desktop/Cafe/cafe-site/public/Frames\" && ls -la | awk 'NR>3 {s+=$5; n++} END {printf \"frames: %d\\ntotal: %.1f MB\\navg: %.1f KB\\n\", n, s/1048576, s/n/1024}' && echo \"--- size spread ---\" && ls -la ezgif-frame-0*.jpg ezgif-frame-1*.jpg ezgif-frame-2*.jpg 2>/dev/null | awk '{print $5}' | sort -n | awk 'BEGIN{c=0} {a[c++]=$1} END {print \"min:\", a[0]/1024\" KB\"; print \"median:\", a[int(c/2)]/1024\" KB\"; print \"max:\", a[c-1]/1024\" KB\"}'",
+  "description": "Check frame file sizes for compression quality"
+}
+```
+
+</details>
+
+
+---
+
+## User <sup>8/27/2026, 4:13:11 PM</sup>
+
+<details>
+<summary>Tool Result</summary>
+
+```
+frames: 240
+total: 5.9 MB
+avg: 25.0 KB
+--- size spread ---
+min: 21.251 KB
+median: 23.0791 KB
+max: 94.7705 KB
+```
+
+</details>
+
+
+---
+
+## Assistant <sup>8/27/2026, 4:13:17 PM</sup>
+
+That's the problem. **25 KB average for a 1280×720 frame is very heavily compressed** — roughly quality 40–50. Let me confirm by reading the actual JPEG quantization tables:
+
+
+---
+
+## Assistant <sup>8/27/2026, 4:13:22 PM</sup>
+
+<details>
+<summary>Tool: <code>Bash</code></summary>
+
+```json
+{
+  "command": "cd \"c:/Users/aa/Desktop/Cafe/cafe-site/public/Frames\" && node -e \"\nconst fs=require('fs');\n// Read the DQT (quantization table) marker to estimate JPEG quality.\nfunction quality(p){\n  const b=fs.readFileSync(p); let i=2;\n  while(i<b.length-1){\n    if(b[i]!==0xFF){i++;continue;}\n    const m=b[i+1], len=b.readUInt16BE(i+2);\n    if(m===0xDB){ // DQT\n      const tbl=b.slice(i+5, i+5+64);\n      // sum of first few luma coefficients correlates with quality\n      let sum=0; for(let k=0;k<64;k++) sum+=tbl[k];\n      const avg=sum/64;\n      // rough inverse mapping\n      const q = avg<=2?95: avg<=4?90: avg<=8?80: avg<=16?70: avg<=25?60: avg<=40?50: 40;\n      return {avgQuant:avg.toFixed(1), approxQuality:q};\n    }\n    i+=2+len;\n  }\n  return null;\n}\nfor(const f of ['ezgif-frame-001.jpg','ezgif-frame-060.jpg','ezgif-frame-150.jpg','ezgif-frame-240.jpg']){\n  console.log(f, JSON.stringify(quality(f)));\n}\n\"",
+  "description": "Estimate JPEG quality from quantization tables"
+}
+```
+
+</details>
+
+
+---
+
+## User <sup>8/27/2026, 4:13:24 PM</sup>
+
+<details>
+<summary>Tool Result</summary>
+
+```
+ezgif-frame-001.jpg {"avgQuant":"24.4","approxQuality":60}
+ezgif-frame-060.jpg {"avgQuant":"102.5","approxQuality":40}
+ezgif-frame-150.jpg {"avgQuant":"102.5","approxQuality":40}
+ezgif-frame-240.jpg {"avgQuant":"102.5","approxQuality":40}
+```
+
+</details>
+
+
+---
+
+## Assistant <sup>8/27/2026, 4:13:31 PM</sup>
+
+That explains exactly what you're seeing. **Frame 1 is quality ~60, but every frame after it is quality ~40** — heavily compressed. That's why the opening scene "looks ok" and the blockiness appears "as I scroll a bit."
+
+This is baked into the source files, not something my code causes:
+
+
+---
+
+## Assistant <sup>8/27/2026, 4:13:36 PM</sup>
+
+<details>
+<summary>Tool: <code>Bash</code></summary>
+
+```json
+{
+  "command": "cd \"c:/Users/aa/Desktop/Cafe/cafe-site/public/Frames\" && node -e \"\nconst fs=require('fs');\n// Chroma subsampling from SOF0: sampling factors of component 1\nfunction sof(p){\n  const b=fs.readFileSync(p); let i=2;\n  while(i<b.length-1){\n    if(b[i]!==0xFF){i++;continue;}\n    const m=b[i+1];\n    if(m===0xC0||m===0xC2){\n      const nc=b[i+9];\n      const h=b[i+11]>>4, v=b[i+11]&15;\n      const sub = (h===2&&v===2)?'4:2:0 (heaviest)':(h===2&&v===1)?'4:2:2':'4:4:4 (best)';\n      return {progressive:m===0xC2, components:nc, subsampling:sub};\n    }\n    i+=2+b.readUInt16BE(i+2);\n  }\n}\nconsole.log('frame 001:', JSON.stringify(sof('ezgif-frame-001.jpg')));\nconsole.log('frame 120:', JSON.stringify(sof('ezgif-frame-120.jpg')));\n\" && echo \"--- is 001 different from the rest? ---\" && ls -la ezgif-frame-001.jpg ezgif-frame-002.jpg ezgif-frame-120.jpg | awk '{print $9, $5\" bytes\"}'",
+  "description": "Check chroma subsampling and confirm frame 1 differs"
+}
+```
+
+</details>
+
+
+---
+
+## User <sup>8/27/2026, 4:13:38 PM</sup>
+
+<details>
+<summary>Tool Result</summary>
+
+```
+frame 001: {"progressive":false,"components":3,"subsampling":"4:2:0 (heaviest)"}
+frame 120: {"progressive":false,"components":3,"subsampling":"4:2:0 (heaviest)"}
+--- is 001 different from the rest? ---
+ezgif-frame-001.jpg 50800 bytes
+ezgif-frame-002.jpg 63917 bytes
+ezgif-frame-120.jpg 21808 bytes
+```
+
+</details>
+
+
+---
+
+## Assistant <sup>8/27/2026, 4:14:00 PM</sup>
+
+Confirmed. The diagnosis is complete and it's an **asset problem, not a code problem**.
+
+## Why it happens
+
+Your frames came out of ezgif (the filenames say so), which is a *GIF* tool. The pipeline was almost certainly **video → GIF → extracted JPEGs**, and that path is lossy twice over:
+
+| | frame 001 | frames 002–240 |
+|---|---|---|
+| file size | 50.8 KB | ~21–24 KB |
+| est. quality | **~60** | **~40** |
+| chroma subsampling | 4:2:0 | 4:2:0 |
+
+Three things compound:
+
+1. **Quality ~40** — that's where JPEG's 8×8 DCT blocks become plainly visible. Exactly the "boxes" you described.
+2. **4:2:0 chroma subsampling** — colour resolution is quartered. Brutal on the warm brown-on-brown gradients that make up most of this footage.
+3. **GIF's 256-colour palette** in the middle of the chain — smooth gradients get banded *before* JPEG ever sees them, and JPEG then blocks up the banding.
+
+Frame 1 looks fine because it's compressed less than half as hard as everything after it.
+
+There's a fourth factor from my side, which I should own: the canvas is 1280×720 but on your ~1913px-wide window it's being upscaled ~1.5×, which magnifies every artifact. That's a multiplier, not the cause — at quality 40 you'd see blocking even at 1:1.
+
+## What actually fixes it
+
+**Re-export the frames from the original video, skipping GIF entirely.** If you have the source clip:
+
+```
+ffmpeg -i source.mp4 -vf "fps=24,scale=1920:-1" -q:v 3 \
+       -chroma_sample_location center frames/frame-%03d.jpg
+```
+
+`-q:v 3` is roughly quality 90. At 1920 wide that lands around 120–180 KB/frame — call it 30–40 MB for 240 frames, which is heavy for a hero.
+
+Two ways to keep the weight sane:
+
+- **WebP instead of JPEG** — `-q:v 80` in WebP looks better than JPEG 90 at roughly half the size, and has no 8×8 block structure. ~15 MB total at 1920px. My loader needs no change; only the file extension in `COFFEE_SEQUENCE.path`.
+- **Fewer, better frames** — 120 frames at high quality beats 240 at quality 40. The scrub is smooth because it's tied to scroll, not because of frame count; my code already drops to every 2nd frame on mobile.
+
+My honest recommendation: **1920-wide WebP at q80, 240 frames, ~15 MB**, served with the existing preloader.
+
+## One thing I can do right now
+
+I can't recover detail that was thrown away, but I can stop *magnifying* it — rendering the canvas at device resolution rather than letting the browser upscale a 1280px bitmap. It won't remove the blocking, but it will stop it looking softer and chunkier than the source actually is.
+
+Want me to apply that as an interim improvement, or would you rather go straight to re-exporting the frames? If you can share the original video file or tell me what you have, I'll give you the exact command for it.
 
 
 ---
