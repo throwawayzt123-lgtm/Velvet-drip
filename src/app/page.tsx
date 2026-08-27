@@ -1,4 +1,4 @@
-import Hero from "@/components/sections/Hero";
+import CoffeeScrollHero from "@/components/sections/CoffeeScrollHero";
 import Marquee from "@/components/sections/Marquee";
 import Story from "@/components/sections/Story";
 import Menu from "@/components/sections/Menu";
@@ -8,10 +8,14 @@ import Gallery from "@/components/sections/Gallery";
 import Testimonials from "@/components/sections/Testimonials";
 import Visit from "@/components/sections/Visit";
 
+/**
+ * The scroll-driven pour opens the site. Title and description come from the
+ * root layout, which already carries the house metadata.
+ */
 export default function Home() {
   return (
     <main>
-      <Hero />
+      <CoffeeScrollHero />
       <Marquee />
       <Story />
       <Menu />

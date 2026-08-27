@@ -6,8 +6,8 @@
 | **Session ID** | `1c80965d-6746-4ac6-aedb-fd4bc588c93d` |
 | **Working Dir** | `c:\Users\aa\Desktop\Cafe\cafe-site` |
 | **Started** | 8/18/2026, 11:58:45 AM |
-| **Last Updated** | 8/27/2026, 9:44:02 AM |
-| **Messages** | 821 |
+| **Last Updated** | 8/27/2026, 4:09:39 PM |
+| **Messages** | 904 |
 
 ---
 
@@ -12654,6 +12654,1200 @@ So: I fixed bugs that are plausibly your bug. That is not the same as solving it
 I can also offer a much blunter option if you'd rather just have it stable now: disable the pin on touch entirely and let the sequence play as a normal scroll-through section on mobile. Less cinematic, but it removes the whole class of pin-versus-chrome conflict.
 
 Want me to add the diagnostic readout, take the blunt fix, or first have you check whether the current state still jerks on the device? If it happens to be fixed already, that tells us as much as the readout would.
+
+
+---
+
+## User <sup>8/27/2026, 2:40:33 PM</sup>
+
+what is meant by AURELIA?
+
+
+---
+
+## Assistant <sup>8/27/2026, 2:40:59 PM</sup>
+
+"Aurélia" is a name I invented for the café when I built the site — it's placeholder branding, not something with a fixed meaning you need to preserve.
+
+The reasoning behind the pick: it derives from the Latin *aureus*, meaning "golden." That tied directly to your `#E4C79F` primary — the whole palette is built around gold on dark roast, so a name meaning "golden" made the wordmark and the colour feel like one decision rather than two. It's also a real given name (French/Latin origin, borne by a 9th-century saint), which gives it the established, slightly old-world feel you asked for with "royal elegant."
+
+Practically, it also just behaves well in the layout: five letters, a natural italic in Cormorant Garamond, and the accented é adds a bit of character in the wordmark and the oversized footer lockup.
+
+All of it is swappable from one place — [site.ts](src/lib/site.ts):
+
+```ts
+export const BRAND = {
+  name: "Aurélia",
+  tagline: "Coffee Atelier",
+  established: "EST. SPECIALITY · 2016",
+  ...
+}
+```
+
+Change `name` there and it updates the header wordmark, the mobile menu, the footer lockup, the loading screen on `/home2`, and the page metadata. The one thing to check after swapping is the giant footer wordmark — it's sized with `clamp(3.5rem, 15vw, 15rem)`, so a much longer name may need that trimmed.
+
+Same goes for the address, phone, email, and the menu copy — all fictional placeholders in that file, waiting for your real details.
+
+
+---
+
+## User <sup>8/27/2026, 3:57:54 PM</sup>
+
+make the /home2 as a  main / route and  / route convert to home2 
+
+means make vice versa
+
+
+---
+
+## Assistant <sup>8/27/2026, 3:58:06 PM</sup>
+
+Straightforward swap: the scroll-video hero becomes `/`, and the current PNG hero moves to `/home2`. Let me check the current state first.
+
+
+---
+
+## Assistant <sup>8/27/2026, 3:58:07 PM</sup>
+
+<details>
+<summary>Tool: <code>Bash</code></summary>
+
+```json
+{
+  "command": "cd \"c:/Users/aa/Desktop/Cafe/cafe-site\" && echo \"=== / ===\" && cat src/app/page.tsx && echo && echo \"=== /home2 ===\" && cat src/app/home2/page.tsx",
+  "description": "Read both route files"
+}
+```
+
+</details>
+
+
+---
+
+## User <sup>8/27/2026, 3:58:09 PM</sup>
+
+<details>
+<summary>Tool Result</summary>
+
+```
+=== / ===
+import Hero from "@/components/sections/Hero";
+import Marquee from "@/components/sections/Marquee";
+import Story from "@/components/sections/Story";
+import Menu from "@/components/sections/Menu";
+import Craft from "@/components/sections/Craft";
+import Origins from "@/components/sections/Origins";
+import Gallery from "@/components/sections/Gallery";
+import Testimonials from "@/components/sections/Testimonials";
+import Visit from "@/components/sections/Visit";
+
+export default function Home() {
+  return (
+    <main>
+      <Hero />
+      <Marquee />
+      <Story />
+      <Menu />
+      <Craft />
+      <Origins />
+      <Gallery />
+      <Testimonials />
+      <Visit />
+    </main>
+  );
+}
+
+=== /home2 ===
+import type { Metadata } from "next";
+
+import CoffeeScrollHero from "@/components/sections/CoffeeScrollHero";
+import Marquee from "@/components/sections/Marquee";
+import Story from "@/components/sections/Story";
+import Menu from "@/components/sections/Menu";
+import Craft from "@/c
+...(truncated)
+```
+
+</details>
+
+
+---
+
+## Assistant <sup>8/27/2026, 3:58:15 PM</sup>
+
+Only the hero differs. Note the root layout already sets the site-wide title, so `/` inherits it while `/home2` needs its own:
+
+
+---
+
+## Assistant <sup>8/27/2026, 3:58:18 PM</sup>
+
+<details>
+<summary>Tool: <code>Write</code></summary>
+
+```json
+{
+  "file_path": "c:\\Users\\aa\\Desktop\\Cafe\\cafe-site\\src\\app\\page.tsx",
+  "content": "import CoffeeScrollHero from \"@/components/sections/CoffeeScrollHero\";\nimport Marquee from \"@/components/sections/Marquee\";\nimport Story from \"@/components/sections/Story\";\nimport Menu from \"@/components/sections/Menu\";\nimport Craft from \"@/components/sections/Craft\";\nimport Origins from \"@/components/sections/Origins\";\nimport Gallery from \"@/components/sections/Gallery\";\nimport Testimonials from \"@/components/sections/Testimonials\";\nimport Visit from \"@/components/sections/Visit\";\n\n/**\n * The scroll-driven pour opens the site. Title and description come from the\n * root layout, which already carries the house metadata.\n */\nexport default function Home() {\n  return (\n    <main>\n      <CoffeeScrollHero />\n      <Marquee />\n      <Story />\n      <Menu />\n      <Craft />\n      <Origins />\n      <Gallery />\n      <Testimonials />\n      <Visit />\n    </main>\n  );\n}\n"
+}
+```
+
+</details>
+
+
+---
+
+## User <sup>8/27/2026, 3:58:19 PM</sup>
+
+<details>
+<summary>Tool Result</summary>
+
+```
+The file c:\Users\aa\Desktop\Cafe\cafe-site\src\app\page.tsx has been updated successfully. (file state is current in your context — no need to Read it back)
+```
+
+</details>
+
+
+---
+
+## Assistant <sup>8/27/2026, 3:58:28 PM</sup>
+
+<details>
+<summary>Tool: <code>Write</code></summary>
+
+```json
+{
+  "file_path": "c:\\Users\\aa\\Desktop\\Cafe\\cafe-site\\src\\app\\home2\\page.tsx",
+  "content": "import type { Metadata } from \"next\";\n\nimport Hero from \"@/components/sections/Hero\";\nimport Marquee from \"@/components/sections/Marquee\";\nimport Story from \"@/components/sections/Story\";\nimport Menu from \"@/components/sections/Menu\";\nimport Craft from \"@/components/sections/Craft\";\nimport Origins from \"@/components/sections/Origins\";\nimport Gallery from \"@/components/sections/Gallery\";\nimport Testimonials from \"@/components/sections/Testimonials\";\nimport Visit from \"@/components/sections/Visit\";\nimport { BRAND } from \"@/lib/site\";\n\nexport const metadata: Metadata = {\n  title: `${BRAND.name} — The Still Life`,\n  description:\n    \"The composed opening: a single cup caught mid-pour, held against the dark.\",\n};\n\n/**\n * Same site, alternate opening. Only the hero differs — every section below it\n * is the component already used on the home page.\n */\nexport default function Home2() {\n  return (\n    <main>\n      <Hero />\n      <Marquee />\n      <Story />\n      <Menu />\n      <Craft />\n      <Origins />\n      <Gallery />\n      <Testimonials />\n      <Visit />\n    </main>\n  );\n}\n"
+}
+```
+
+</details>
+
+
+---
+
+## User <sup>8/27/2026, 3:58:29 PM</sup>
+
+<details>
+<summary>Tool Result</summary>
+
+```
+The file c:\Users\aa\Desktop\Cafe\cafe-site\src\app\home2\page.tsx has been updated successfully. (file state is current in your context — no need to Read it back)
+```
+
+</details>
+
+
+---
+
+## Assistant <sup>8/27/2026, 3:58:35 PM</sup>
+
+Both heroes use `id="home"`, so the header's `#home` anchor works on either route. Let me verify:
+
+
+---
+
+## Assistant <sup>8/27/2026, 3:58:37 PM</sup>
+
+<details>
+<summary>Tool: <code>Bash</code></summary>
+
+```json
+{
+  "command": "cd \"c:/Users/aa/Desktop/Cafe/cafe-site\" && grep -n 'id=\"home\"' src/components/sections/Hero.tsx src/components/sections/CoffeeScrollHero.tsx && echo \"--- checking for hardcoded /home2 links ---\" && grep -rn \"home2\" src/ --include=*.tsx --include=*.ts | grep -v \"app/home2/page.tsx\" || echo \"none\"",
+  "description": "Verify anchors and check for stale route references"
+}
+```
+
+</details>
+
+
+---
+
+## User <sup>8/27/2026, 3:58:37 PM</sup>
+
+<details>
+<summary>Tool Result</summary>
+
+```
+src/components/sections/Hero.tsx:122:      id="home"
+src/components/sections/CoffeeScrollHero.tsx:336:      id="home"
+--- checking for hardcoded /home2 links ---
+none
+```
+
+</details>
+
+
+---
+
+## Assistant <sup>8/27/2026, 3:58:43 PM</sup>
+
+Both anchors intact, no stale references. Let me build and verify both routes render the right hero:
+
+
+---
+
+## Assistant <sup>8/27/2026, 3:58:44 PM</sup>
+
+<details>
+<summary>Tool: <code>Bash</code></summary>
+
+```json
+{
+  "command": "cd \"c:/Users/aa/Desktop/Cafe/cafe-site\" && npx tsc --noEmit 2>&1 | head -5 && echo TSC-OK && npx eslint src 2>&1 | tail -5 && echo LINT-OK && npx next build 2>&1 | tail -8",
+  "description": "Typecheck, lint, build after route swap",
+  "timeout": 600000
+}
+```
+
+</details>
+
+
+---
+
+## User <sup>8/27/2026, 4:00:34 PM</sup>
+
+<details>
+<summary>Tool Result</summary>
+
+```
+TSC-OK
+LINT-OK
+Route (app)
+┌ ○ /
+├ ○ /_not-found
+└ ○ /home2
+
+
+○  (Static)  prerendered as static content
+```
+
+</details>
+
+
+---
+
+## Assistant <sup>8/27/2026, 4:00:40 PM</sup>
+
+<details>
+<summary>Tool: <code>Bash</code></summary>
+
+```json
+{
+  "command": "for i in 1 2 3 4 5 6 7 8; do\n  code=$(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:3000/ --max-time 5)\n  if [ \"$code\" = \"200\" ]; then echo \"server up\"; exit 0; fi\n  sleep 2\ndone\necho \"server down — starting\"",
+  "description": "Check dev server",
+  "timeout": 60000
+}
+```
+
+</details>
+
+
+---
+
+## User <sup>8/27/2026, 4:00:45 PM</sup>
+
+<details>
+<summary>Tool Result</summary>
+
+```
+server up
+```
+
+</details>
+
+
+---
+
+## Assistant <sup>8/27/2026, 4:00:58 PM</sup>
+
+<details>
+<summary>Tool: <code>Bash</code></summary>
+
+```json
+{
+  "command": "cd \"C:/Users/aa/AppData/Local/Temp/claude/c--Users-aa-Desktop-Cafe-cafe-site/1c80965d-6746-4ac6-aedb-fd4bc588c93d/scratchpad\" && cat > routes.mjs <<'EOF'\nimport puppeteer from \"puppeteer-core\";\nconst browser = await puppeteer.launch({\n  executablePath: \"C:/Program Files/Google/Chrome/Application/chrome.exe\",\n  headless: \"new\", args: [\"--no-sandbox\", \"--hide-scrollbars\"],\n  defaultViewport: { width: 1440, height: 900, deviceScaleFactor: 1 },\n});\nfor (const path of [\"/\", \"/home2\"]) {\n  const page = await browser.newPage();\n  const errs = [];\n  page.on(\"pageerror\", (e) => errs.push(String(e).slice(0, 140)));\n  await page.goto(\"http://localhost:3000\" + path, { waitUntil: \"networkidle2\", timeout: 90000 });\n  await new Promise((r) => setTimeout(r, 6500));\n  const info = await page.evaluate(() => ({\n    title: document.title,\n    // the scroll hero paints a <canvas>; the still hero uses an <img>\n    heroKind: document.querySelector(\"#home canvas\") ? \"scroll-video (canvas)\"\n            : document.querySelector('#home img[alt*=\"Porcelain\"]') ? \"still PNG hero\"\n            : \"unknown\",\n    sectionCount: document.querySelectorAll(\"main section\").length,\n    docHeight: document.documentElement.scrollHeight,\n  }));\n  console.log(path.padEnd(8), JSON.stringify(info), errs.length ? \"ERR:\" + errs.join(\"|\") : \"no errors\");\n  await page.screenshot({ path: `route${path === \"/\" ? \"-root\" : \"-home2\"}.png` });\n  await page.close();\n}\nawait browser.close();\nEOF\nnode routes.mjs 2>&1 | tail -4",
+  "description": "Verify each route renders the correct hero",
+  "timeout": 300000
+}
+```
+
+</details>
+
+
+---
+
+## User <sup>8/27/2026, 4:01:24 PM</sup>
+
+<details>
+<summary>Tool Result</summary>
+
+```
+/        {"title":"Chand UPS — UPS Repair Management","heroKind":"unknown","sectionCount":0,"docHeight":900} no errors
+/home2   {"title":"Chand UPS — UPS Repair Management","heroKind":"unknown","sectionCount":0,"docHeight":900} no errors
+```
+
+</details>
+
+
+---
+
+## Assistant <sup>8/27/2026, 4:01:34 PM</sup>
+
+That's a different app entirely — "Chand UPS" — so something else is now serving port 3000, not this project. My earlier `curl` 200 was misleading. Let me find the real port:
+
+
+---
+
+## Assistant <sup>8/27/2026, 4:01:35 PM</sup>
+
+<details>
+<summary>Tool: <code>Bash</code></summary>
+
+```json
+{
+  "command": "for p in 3000 3001 3002 3003; do\n  t=$(curl -s \"http://localhost:$p/\" --max-time 4 | grep -o \"<title>[^<]*</title>\" | head -1)\n  echo \"port $p -> ${t:-no response}\"\ndone",
+  "description": "Identify which port serves the cafe site",
+  "timeout": 60000
+}
+```
+
+</details>
+
+
+---
+
+## User <sup>8/27/2026, 4:01:40 PM</sup>
+
+<details>
+<summary>Tool Result</summary>
+
+```
+port 3000 -> <title>Chand UPS — UPS Repair Management</title>
+port 3001 -> <title>Muneeb Ur Rehman | Full Stack Developer (MERN) in Lahore</title>
+port 3002 -> <title>Velvet Drip — Coffee Atelier</title>
+port 3003 -> no response
+```
+
+</details>
+
+
+---
+
+## Assistant <sup>8/27/2026, 4:01:46 PM</sup>
+
+Port 3002 is the café site — and its title reads **"Velvet Drip"**, not "Aurélia". You've renamed the brand since I last looked. Let me check before I verify anything against stale assumptions:
+
+
+---
+
+## Assistant <sup>8/27/2026, 4:01:48 PM</sup>
+
+<details>
+<summary>Tool: <code>Bash</code></summary>
+
+```json
+{
+  "command": "cd \"c:/Users/aa/Desktop/Cafe/cafe-site\" && sed -n '/export const BRAND/,/} as const;/p' src/lib/site.ts && echo \"--- git status ---\" && git status --short",
+  "description": "Check current brand values and working tree"
+}
+```
+
+</details>
+
+
+---
+
+## User <sup>8/27/2026, 4:01:49 PM</sup>
+
+<details>
+<summary>Tool Result</summary>
+
+```
+export const BRAND = {
+  name: "Velvet Drip",
+  tagline: "Coffee Atelier",
+  established: "EST. SPECIALITY · 2016",
+  address: "18 Marlowe Lane, Fitzrovia, London W1T",
+  hours: "Mon–Fri 07:00–19:00 · Sat–Sun 08:00–18:00",
+  phone: "+44 20 7946 0812",
+  email: "contact@nofilter.coffee",
+} as const;
+--- git status ---
+ M .cc-history/2026-08-18_115845_command-namemodelcommand-name-_1c80965d.md
+ M src/app/home2/page.tsx
+ M src/app/page.tsx
+ M src/lib/site.ts
+```
+
+</details>
+
+
+---
+
+## Assistant <sup>8/27/2026, 4:01:55 PM</sup>
+
+Good — you've renamed it to "Velvet Drip" and changed the email. My route swap sits cleanly alongside that. Let me verify against the correct port:
+
+
+---
+
+## Assistant <sup>8/27/2026, 4:01:58 PM</sup>
+
+<details>
+<summary>Tool: <code>Bash</code></summary>
+
+```json
+{
+  "command": "cd \"C:/Users/aa/AppData/Local/Temp/claude/c--Users-aa-Desktop-Cafe-cafe-site/1c80965d-6746-4ac6-aedb-fd4bc588c93d/scratchpad\" && sed -i 's|http://localhost:3000|http://localhost:3002|g' routes.mjs && node routes.mjs 2>&1 | tail -4",
+  "description": "Verify both routes on the correct port",
+  "timeout": 300000
+}
+```
+
+</details>
+
+
+---
+
+## User <sup>8/27/2026, 4:02:22 PM</sup>
+
+<details>
+<summary>Tool Result</summary>
+
+```
+/        {"title":"Velvet Drip — Coffee Atelier","heroKind":"scroll-video (canvas)","sectionCount":8,"docHeight":17295} no errors
+/home2   {"title":"Velvet Drip — The Still Life","heroKind":"still PNG hero","sectionCount":8,"docHeight":14415} no errors
+```
+
+</details>
+
+
+---
+
+## Assistant <sup>8/27/2026, 4:02:29 PM</sup>
+
+The swap is confirmed:
+
+| route | hero | title |
+|---|---|---|
+| `/` | **scroll-video (canvas)** | Velvet Drip — Coffee Atelier |
+| `/home2` | **still PNG hero** | Velvet Drip — The Still Life |
+
+Both carry all 8 sections, no page errors. Let me confirm visually:
+
+
+---
+
+## Assistant <sup>8/27/2026, 4:02:31 PM</sup>
+
+<details>
+<summary>Tool: <code>Read</code></summary>
+
+```json
+{
+  "file_path": "C:\\Users\\aa\\AppData\\Local\\Temp\\claude\\c--Users-aa-Desktop-Cafe-cafe-site\\1c80965d-6746-4ac6-aedb-fd4bc588c93d\\scratchpad\\route-root.png"
+}
+```
+
+</details>
+
+
+---
+
+## User <sup>8/27/2026, 4:02:31 PM</sup>
+
+
+---
+
+## Assistant <sup>8/27/2026, 4:02:31 PM</sup>
+
+<details>
+<summary>Tool: <code>Read</code></summary>
+
+```json
+{
+  "file_path": "C:\\Users\\aa\\AppData\\Local\\Temp\\claude\\c--Users-aa-Desktop-Cafe-cafe-site\\1c80965d-6746-4ac6-aedb-fd4bc588c93d\\scratchpad\\route-home2.png"
+}
+```
+
+</details>
+
+
+---
+
+## User <sup>8/27/2026, 4:02:31 PM</sup>
+
+
+---
+
+## Assistant <sup>8/27/2026, 4:02:45 PM</sup>
+
+Swapped and verified.
+
+- **`/`** now opens with the scroll-driven pour (canvas sequence, 240 frames)
+- **`/home2`** now has the still PNG hero
+
+## Files changed
+Only the two route files — [src/app/page.tsx](src/app/page.tsx) and [src/app/home2/page.tsx](src/app/home2/page.tsx). Nothing else moved: both heroes already used `id="home"`, so the header's anchor nav works on either route, and no code linked to `/home2`.
+
+## Metadata
+`/` now inherits the site-wide title from the root layout (`Velvet Drip — Coffee Atelier`), which is right for a homepage. `/home2` carries its own — I renamed it to **"The Still Life"**, since "The Pour" described the scroll hero and would have been backwards after the swap.
+
+## Two things worth flagging
+
+**Your dev server is on port 3002, not 3000.** Ports 3000 and 3001 are running other projects ("Chand UPS" and a portfolio site). I initially verified against 3000 and got the wrong app — worth knowing so you're not checking the wrong tab.
+
+**I noticed you renamed the brand to "Velvet Drip"** and changed the email to `contact@nofilter.coffee` in `site.ts`. I left both exactly as you set them. One thing to check when you get a chance: the oversized footer wordmark is sized `clamp(3.5rem, 15vw, 15rem)` and was tuned for a 7-character name — "Velvet Drip" is 11 including the space, so it may want a slightly smaller clamp on narrow screens. Say the word and I'll adjust it.
+
+The mobile scroll jerk from earlier is still unresolved and still needs a real-device check — that's unchanged by this swap.
+
+
+---
+
+## User <sup>8/27/2026, 4:02:46 PM</sup>
+
+> *[Image]*
+
+see the above header side its overlapping adjust it
+
+
+---
+
+## Assistant <sup>8/27/2026, 4:02:53 PM</sup>
+
+I can see it — the "COFFEE ATELIER · FITZROVIA" eyebrow is colliding with the logo and nav, and "ETHIOPIA · COLOMBIA · KENYA" is clipped at the bottom-left. That looks like a short-viewport issue. Let me reproduce it at your aspect ratio:
+
+
+---
+
+## Assistant <sup>8/27/2026, 4:03:03 PM</sup>
+
+<details>
+<summary>Tool: <code>Bash</code></summary>
+
+```json
+{
+  "command": "cd \"C:/Users/aa/AppData/Local/Temp/claude/c--Users-aa-Desktop-Cafe-cafe-site/1c80965d-6746-4ac6-aedb-fd4bc588c93d/scratchpad\" && cat > overlap.mjs <<'EOF'\nimport puppeteer from \"puppeteer-core\";\nconst w = +process.argv[2], h = +process.argv[3];\nconst browser = await puppeteer.launch({\n  executablePath: \"C:/Program Files/Google/Chrome/Application/chrome.exe\",\n  headless: \"new\", args: [\"--no-sandbox\", \"--hide-scrollbars\"],\n  defaultViewport: { width: w, height: h, deviceScaleFactor: 1 },\n});\nconst page = await browser.newPage();\nawait page.goto(\"http://localhost:3002/\", { waitUntil: \"networkidle2\", timeout: 90000 });\nawait new Promise((r) => setTimeout(r, 6500));\nconst m = await page.evaluate(() => {\n  const box = (el) => { if (!el) return null; const r = el.getBoundingClientRect();\n    return { top: Math.round(r.top), bottom: Math.round(r.bottom), left: Math.round(r.left), right: Math.round(r.right) }; };\n  const bar = document.querySelector(\"header > div > div\");\n  const eyebrow = document.querySelector('#home [data-intro-eyebrow]');\n  const meta = document.querySelector('#home [data-intro-meta]');\n  const h1 = document.querySelector(\"#home h1\");\n  return { viewportH: window.innerHeight, bar: box(bar), eyebrow: box(eyebrow),\n           h1: box(h1), meta: box(meta), copyPadTop: getComputedStyle(document.querySelector(\"#home .absolute.inset-0.z-10\")).paddingTop };\n});\nconst clash = m.eyebrow && m.bar && m.eyebrow.top < m.bar.bottom;\nconst clipped = m.meta && m.meta.bottom > m.viewportH;\nconsole.log(`${w}x${h}`, JSON.stringify(m), `\\n  headerOverlap=${clash} metaClipped=${clipped}`);\nawait browser.close();\nEOF\nnode overlap.mjs 1913 833 2>&1 | tail -3\nnode overlap.mjs 1440 900 2>&1 | tail -3",
+  "description": "Measure header overlap at the screenshot's aspect ratio",
+  "timeout": 300000
+}
+```
+
+</details>
+
+
+---
+
+## User <sup>8/27/2026, 4:03:26 PM</sup>
+
+<details>
+<summary>Tool Result</summary>
+
+```
+1913x833 {"viewportH":833,"bar":{"top":20,"bottom":94,"left":261,"right":1653},"eyebrow":{"top":54,"bottom":65,"left":285,"right":803},"h1":{"top":97,"bottom":548,"left":285,"right":803},"meta":{"top":764,"bottom":779,"left":285,"right":803},"copyPadTop":"0px"} 
+  headerOverlap=true metaClipped=false
+1440x900 {"viewportH":900,"bar":{"top":20,"bottom":94,"left":24,"right":1416},"eyebrow":{"top":171,"bottom":182,"left":48,"right":566},"h1":{"top":214,"bottom":498,"left":48,"right":566},"meta":{"top":714,"bottom":729,"left":48,"right":566},"copyPadTop":"0px"} 
+  headerOverlap=false metaClipped=false
+```
+
+</details>
+
+
+---
+
+## Assistant <sup>8/27/2026, 4:03:33 PM</sup>
+
+Reproduced exactly. At **1913×833** the eyebrow sits at `top: 54` while the header bar extends to `bottom: 94` — a 40px overlap. At 1440×900 there's no clash (eyebrow at 171).
+
+The cause: the copy block is vertically centred with no allowance for the fixed header, so on a short/wide viewport the tall content grows upward into it.
+
+
+---
+
+## Assistant <sup>8/27/2026, 4:03:34 PM</sup>
+
+<details>
+<summary>Tool: <code>Bash</code></summary>
+
+```json
+{
+  "command": "cd \"c:/Users/aa/Desktop/Cafe/cafe-site\" && grep -n \"absolute inset-0 z-10 flex items-center\" src/components/sections/CoffeeScrollHero.tsx",
+  "description": "Locate the copy layer container"
+}
+```
+
+</details>
+
+
+---
+
+## User <sup>8/27/2026, 4:03:35 PM</sup>
+
+<details>
+<summary>Tool Result</summary>
+
+```
+410:        <div className="pointer-events-none absolute inset-0 z-10 flex items-center max-sm:items-start max-sm:pt-24">
+```
+
+</details>
+
+
+---
+
+## Assistant <sup>8/27/2026, 4:03:41 PM</sup>
+
+The fix is to reserve the header's height on the copy layer so centring happens in the space *below* it, rather than the full viewport:
+
+
+---
+
+## Assistant <sup>8/27/2026, 4:03:44 PM</sup>
+
+<details>
+<summary>Tool: <code>Edit</code></summary>
+
+```json
+{
+  "replace_all": false,
+  "file_path": "c:\\Users\\aa\\Desktop\\Cafe\\cafe-site\\src\\components\\sections\\CoffeeScrollHero.tsx",
+  "old_string": "        <div className=\"pointer-events-none absolute inset-0 z-10 flex items-center max-sm:items-start max-sm:pt-24\">",
+  "new_string": "        {/* The header is fixed and overlays the stage, so the copy centres in\n            the space *below* it rather than in the raw viewport. Without the\n            top inset, a short landscape window (e.g. 1913x833) pushes the\n            eyebrow up under the logo and nav. */}\n        <div className=\"pointer-events-none absolute inset-x-0 bottom-0 top-[104px] z-10 flex items-center max-sm:top-0 max-sm:items-start max-sm:pt-24\">"
+}
+```
+
+</details>
+
+
+---
+
+## User <sup>8/27/2026, 4:03:45 PM</sup>
+
+<details>
+<summary>Tool Result</summary>
+
+```
+The file c:\Users\aa\Desktop\Cafe\cafe-site\src\components\sections\CoffeeScrollHero.tsx has been updated successfully. (file state is current in your context — no need to Read it back)
+```
+
+</details>
+
+
+---
+
+## Assistant <sup>8/27/2026, 4:03:52 PM</sup>
+
+The story beats are separately positioned with `inset-y-0`, so they'd still ride under the header. Let me check and fix those too:
+
+
+---
+
+## Assistant <sup>8/27/2026, 4:03:53 PM</sup>
+
+<details>
+<summary>Tool: <code>Bash</code></summary>
+
+```json
+{
+  "command": "cd \"c:/Users/aa/Desktop/Cafe/cafe-site\" && grep -n \"absolute inset-y-0 left-0 flex w-full\" src/components/sections/CoffeeScrollHero.tsx",
+  "description": "Locate the story beat containers"
+}
+```
+
+</details>
+
+
+---
+
+## User <sup>8/27/2026, 4:03:53 PM</sup>
+
+<details>
+<summary>Tool Result</summary>
+
+```
+472:                  className="pointer-events-auto absolute inset-y-0 left-0 flex w-full max-w-[1440px] flex-col justify-center px-12 opacity-0 max-lg:px-8 max-sm:justify-end max-sm:px-5 max-sm:pb-14 max-sm:text-center"
+```
+
+</details>
+
+
+---
+
+## Assistant <sup>8/27/2026, 4:03:59 PM</sup>
+
+The beats are children of the copy layer, so they inherit its new top inset — but `inset-y-0` resets them back to full height. Let me align them:
+
+
+---
+
+## Assistant <sup>8/27/2026, 4:04:01 PM</sup>
+
+<details>
+<summary>Tool: <code>Edit</code></summary>
+
+```json
+{
+  "replace_all": false,
+  "file_path": "c:\\Users\\aa\\Desktop\\Cafe\\cafe-site\\src\\components\\sections\\CoffeeScrollHero.tsx",
+  "old_string": "                  className=\"pointer-events-auto absolute inset-y-0 left-0 flex w-full max-w-[1440px] flex-col justify-center px-12 opacity-0 max-lg:px-8 max-sm:justify-end max-sm:px-5 max-sm:pb-14 max-sm:text-center\"",
+  "new_string": "                  className=\"pointer-events-auto absolute inset-y-0 left-0 flex w-full max-w-[1440px] flex-col justify-center px-12 opacity-0 max-lg:px-8 max-sm:bottom-0 max-sm:top-0 max-sm:justify-end max-sm:px-5 max-sm:pb-14 max-sm:text-center\""
+}
+```
+
+</details>
+
+
+---
+
+## User <sup>8/27/2026, 4:04:02 PM</sup>
+
+<details>
+<summary>Tool Result</summary>
+
+```
+The file c:\Users\aa\Desktop\Cafe\cafe-site\src\components\sections\CoffeeScrollHero.tsx has been updated successfully. (file state is current in your context — no need to Read it back)
+```
+
+</details>
+
+
+---
+
+## Assistant <sup>8/27/2026, 4:04:09 PM</sup>
+
+That edit was a no-op — the beats sit inside the copy layer, so they already inherit its inset. Let me revert it and verify with measurement rather than assumption:
+
+
+---
+
+## Assistant <sup>8/27/2026, 4:04:10 PM</sup>
+
+<details>
+<summary>Tool: <code>Edit</code></summary>
+
+```json
+{
+  "replace_all": false,
+  "file_path": "c:\\Users\\aa\\Desktop\\Cafe\\cafe-site\\src\\components\\sections\\CoffeeScrollHero.tsx",
+  "old_string": "max-lg:px-8 max-sm:bottom-0 max-sm:top-0 max-sm:justify-end max-sm:px-5 max-sm:pb-14 max-sm:text-center\"",
+  "new_string": "max-lg:px-8 max-sm:justify-end max-sm:px-5 max-sm:pb-14 max-sm:text-center\""
+}
+```
+
+</details>
+
+
+---
+
+## User <sup>8/27/2026, 4:04:11 PM</sup>
+
+<details>
+<summary>Tool Result</summary>
+
+```
+The file c:\Users\aa\Desktop\Cafe\cafe-site\src\components\sections\CoffeeScrollHero.tsx has been updated successfully. (file state is current in your context — no need to Read it back)
+```
+
+</details>
+
+
+---
+
+## Assistant <sup>8/27/2026, 4:04:20 PM</sup>
+
+<details>
+<summary>Tool: <code>Bash</code></summary>
+
+```json
+{
+  "command": "cd \"c:/Users/aa/Desktop/Cafe/cafe-site\" && npx tsc --noEmit 2>&1 | head -5 && echo TSC-OK && cd \"C:/Users/aa/AppData/Local/Temp/claude/c--Users-aa-Desktop-Cafe-cafe-site/1c80965d-6746-4ac6-aedb-fd4bc588c93d/scratchpad\" && for d in \"1913 833\" \"1440 900\" \"1280 720\" \"1920 1080\"; do node overlap.mjs $d 2>&1 | tail -2; done",
+  "description": "Verify overlap fixed across viewport sizes",
+  "timeout": 400000
+}
+```
+
+</details>
+
+
+---
+
+## User <sup>8/27/2026, 4:05:20 PM</sup>
+
+<details>
+<summary>Tool Result</summary>
+
+```
+TSC-OK
+
+Node.js v24.15.0
+
+Node.js v24.15.0
+
+Node.js v24.15.0
+
+Node.js v24.15.0
+```
+
+</details>
+
+
+---
+
+## Assistant <sup>8/27/2026, 4:05:26 PM</sup>
+
+The probe's selector broke because I changed the container's classes. Let me fix the selector:
+
+
+---
+
+## Assistant <sup>8/27/2026, 4:05:28 PM</sup>
+
+<details>
+<summary>Tool: <code>Bash</code></summary>
+
+```json
+{
+  "command": "cd \"C:/Users/aa/AppData/Local/Temp/claude/c--Users-aa-Desktop-Cafe-cafe-site/1c80965d-6746-4ac6-aedb-fd4bc588c93d/scratchpad\" && sed -i 's|document.querySelector(\"#home .absolute.inset-0.z-10\")).paddingTop|document.querySelector(\"#home h1\")).fontSize|' overlap.mjs && for d in \"1913 833\" \"1440 900\" \"1280 720\" \"1920 1080\"; do node overlap.mjs $d 2>&1 | tail -2; done",
+  "description": "Re-measure overlap across viewport sizes",
+  "timeout": 400000
+}
+```
+
+</details>
+
+
+---
+
+## User <sup>8/27/2026, 4:06:13 PM</sup>
+
+<details>
+<summary>Tool Result</summary>
+
+```
+1913x833 {"viewportH":833,"bar":{"top":20,"bottom":94,"left":261,"right":1653},"eyebrow":{"top":106,"bottom":117,"left":285,"right":803},"h1":{"top":149,"bottom":600,"left":285,"right":803},"meta":{"top":816,"bottom":831,"left":285,"right":803},"copyPadTop":"120px"} 
+  headerOverlap=false metaClipped=false
+1440x900 {"viewportH":900,"bar":{"top":20,"bottom":94,"left":24,"right":1416},"eyebrow":{"top":223,"bottom":234,"left":48,"right":566},"h1":{"top":266,"bottom":550,"left":48,"right":566},"meta":{"top":766,"bottom":781,"left":48,"right":566},"copyPadTop":"100.8px"} 
+  headerOverlap=false metaClipped=false
+1280x720 {"viewportH":720,"bar":{"top":20,"bottom":94,"left":24,"right":1256},"eyebrow":{"top":149,"bottom":160,"left":48,"right":566},"h1":{"top":192,"bottom":445,"left":48,"right":566},"meta":{"top":660,"bottom":675,"left":48,"right":566},"copyPadTop":"89.6px"} 
+  headerOverlap=false metaClipped=false
+1920x1080 {"viewportH":1080,"bar":{"top":20,"bottom":94,"left":264,"right":1656},
+...(truncated)
+```
+
+</details>
+
+
+---
+
+## Assistant <sup>8/27/2026, 4:06:20 PM</sup>
+
+Fixed at every size. At 1913×833 the eyebrow moved from `top: 54` (overlapping) to `top: 106` — now clear of the header bar's `bottom: 94`. Nothing is clipped. Let me confirm visually and check mobile didn't regress:
+
+
+---
+
+## Assistant <sup>8/27/2026, 4:06:26 PM</sup>
+
+<details>
+<summary>Tool: <code>Bash</code></summary>
+
+```json
+{
+  "command": "cd \"C:/Users/aa/AppData/Local/Temp/claude/c--Users-aa-Desktop-Cafe-cafe-site/1c80965d-6746-4ac6-aedb-fd4bc588c93d/scratchpad\" && cat > shot2.mjs <<'EOF'\nimport puppeteer from \"puppeteer-core\";\nconst [,, w, h, out, prog] = process.argv;\nconst browser = await puppeteer.launch({\n  executablePath: \"C:/Program Files/Google/Chrome/Application/chrome.exe\",\n  headless: \"new\", args: [\"--no-sandbox\", \"--hide-scrollbars\"],\n  defaultViewport: { width: +w, height: +h, deviceScaleFactor: 1 },\n});\nconst page = await browser.newPage();\nawait page.goto(\"http://localhost:3002/\", { waitUntil: \"networkidle2\", timeout: 90000 });\nawait new Promise((r) => setTimeout(r, 6500));\nif (+prog > 0) {\n  const range = await page.evaluate(() => Math.round(document.querySelector(\"#home\").getBoundingClientRect().height - window.innerHeight));\n  await page.evaluate((y) => { const s = window.ScrollSmoother?.get?.(); s ? s.scrollTo(y,false) : window.scrollTo(0,y); }, Math.round(range * +prog));\n  await new Promise((r) => setTimeout(r, 2200));\n}\nawait page.screenshot({ path: out });\nawait browser.close();\nEOF\nnode shot2.mjs 1913 833 fix-1913.png 0 && node shot2.mjs 440 956 fix-mob.png 0 && node shot2.mjs 1913 833 fix-beat.png 0.30 && echo done",
+  "description": "Screenshot fixed layout at desktop and mobile",
+  "timeout": 400000
+}
+```
+
+</details>
+
+
+---
+
+## User <sup>8/27/2026, 4:07:03 PM</sup>
+
+<details>
+<summary>Tool Result</summary>
+
+```
+done
+```
+
+</details>
+
+
+---
+
+## Assistant <sup>8/27/2026, 4:07:10 PM</sup>
+
+<details>
+<summary>Tool: <code>Read</code></summary>
+
+```json
+{
+  "file_path": "C:\\Users\\aa\\AppData\\Local\\Temp\\claude\\c--Users-aa-Desktop-Cafe-cafe-site\\1c80965d-6746-4ac6-aedb-fd4bc588c93d\\scratchpad\\fix-1913.png"
+}
+```
+
+</details>
+
+
+---
+
+## User <sup>8/27/2026, 4:07:10 PM</sup>
+
+
+---
+
+## Assistant <sup>8/27/2026, 4:07:17 PM</sup>
+
+No more collision — the eyebrow now sits cleanly below the header, and the origin line is fully visible. But the fit is still tight: the headline wraps to four lines and the origin line nearly touches the bottom edge. On an 833px-tall window the copy simply has more height than the space allows.
+
+Let me tighten the type scale for short viewports so it breathes:
+
+
+---
+
+## Assistant <sup>8/27/2026, 4:07:19 PM</sup>
+
+<details>
+<summary>Tool: <code>Bash</code></summary>
+
+```json
+{
+  "command": "cd \"c:/Users/aa/Desktop/Cafe/cafe-site\" && grep -n 'clamp(3rem,7vw,7.5rem)\\|max-w-\\[14ch\\]' src/components/sections/CoffeeScrollHero.tsx",
+  "description": "Find the hero headline sizing"
+}
+```
+
+</details>
+
+
+---
+
+## User <sup>8/27/2026, 4:07:19 PM</sup>
+
+<details>
+<summary>Tool Result</summary>
+
+```
+429:                className="mt-8 max-w-[14ch] font-display text-[clamp(3rem,7vw,7.5rem)] font-light leading-[0.94] tracking-[-0.02em] text-cream drop-shadow-[0_4px_26px_rgb(8_5_3/0.95)] max-sm:mx-auto max-sm:mt-5"
+```
+
+</details>
+
+
+---
+
+## Assistant <sup>8/27/2026, 4:07:25 PM</sup>
+
+The headline scales on `vw` only, so a wide-but-short window gets a huge type size with no height to hold it. Adding a height term fixes that:
+
+
+---
+
+## Assistant <sup>8/27/2026, 4:07:29 PM</sup>
+
+<details>
+<summary>Tool: <code>Edit</code></summary>
+
+```json
+{
+  "replace_all": false,
+  "file_path": "c:\\Users\\aa\\Desktop\\Cafe\\cafe-site\\src\\components\\sections\\CoffeeScrollHero.tsx",
+  "old_string": "                className=\"mt-8 max-w-[14ch] font-display text-[clamp(3rem,7vw,7.5rem)] font-light leading-[0.94] tracking-[-0.02em] text-cream drop-shadow-[0_4px_26px_rgb(8_5_3/0.95)] max-sm:mx-auto max-sm:mt-5\"",
+  "new_string": "                /* Sized against height as well as width: on a wide-but-short\n                   window (1913x833) a pure vw scale produced a four-line\n                   headline that crowded the header and the origin line. */\n                className=\"mt-8 max-w-[16ch] font-display text-[clamp(2.6rem,min(7vw,10.5vh),7.5rem)] font-light leading-[0.96] tracking-[-0.02em] text-cream drop-shadow-[0_4px_26px_rgb(8_5_3/0.95)] max-sm:mx-auto max-sm:mt-5 max-sm:max-w-none\""
+}
+```
+
+</details>
+
+
+---
+
+## User <sup>8/27/2026, 4:07:31 PM</sup>
+
+<details>
+<summary>Tool Result</summary>
+
+```
+The file c:\Users\aa\Desktop\Cafe\cafe-site\src\components\sections\CoffeeScrollHero.tsx has been updated successfully. (file state is current in your context — no need to Read it back)
+```
+
+</details>
+
+
+---
+
+## Assistant <sup>8/27/2026, 4:07:40 PM</sup>
+
+<details>
+<summary>Tool: <code>Bash</code></summary>
+
+```json
+{
+  "command": "cd \"c:/Users/aa/Desktop/Cafe/cafe-site\" && npx tsc --noEmit 2>&1 | head -5 && echo TSC-OK && cd \"C:/Users/aa/AppData/Local/Temp/claude/c--Users-aa-Desktop-Cafe-cafe-site/1c80965d-6746-4ac6-aedb-fd4bc588c93d/scratchpad\" && for d in \"1913 833\" \"1440 900\" \"1920 1080\"; do node overlap.mjs $d 2>&1 | tail -2; done && node shot2.mjs 1913 833 fix2-1913.png 0 && echo shot-done",
+  "description": "Verify type scale fix across sizes",
+  "timeout": 400000
+}
+```
+
+</details>
+
+
+---
+
+## User <sup>8/27/2026, 4:08:32 PM</sup>
+
+<details>
+<summary>Tool Result</summary>
+
+```
+TSC-OK
+1913x833 {"viewportH":833,"bar":{"top":20,"bottom":94,"left":261,"right":1653},"eyebrow":{"top":206,"bottom":217,"left":285,"right":803},"h1":{"top":249,"bottom":501,"left":285,"right":803},"meta":{"top":716,"bottom":731,"left":285,"right":803},"copyPadTop":"87.465px"} 
+  headerOverlap=false metaClipped=false
+1440x900 {"viewportH":900,"bar":{"top":20,"bottom":94,"left":24,"right":1416},"eyebrow":{"top":229,"bottom":240,"left":48,"right":566},"h1":{"top":272,"bottom":544,"left":48,"right":566},"meta":{"top":760,"bottom":775,"left":48,"right":566},"copyPadTop":"94.5px"} 
+  headerOverlap=false metaClipped=false
+1920x1080 {"viewportH":1080,"bar":{"top":20,"bottom":94,"left":264,"right":1656},"eyebrow":{"top":238,"bottom":249,"left":288,"right":806},"h1":{"top":281,"bottom":716,"left":288,"right":806},"meta":{"top":931,"bottom":946,"left":288,"right":806},"copyPadTop":"113.4px"} 
+  headerOverlap=false metaClipped=false
+shot-done
+```
+
+</details>
+
+
+---
+
+## Assistant <sup>8/27/2026, 4:08:39 PM</sup>
+
+At 1913×833 the eyebrow now sits at `top: 206` (was 54 originally, 106 after the first fix) and the origin line ends at 731 with 102px of clearance. Let me confirm visually:
+
+
+---
+
+## Assistant <sup>8/27/2026, 4:08:39 PM</sup>
+
+<details>
+<summary>Tool: <code>Read</code></summary>
+
+```json
+{
+  "file_path": "C:\\Users\\aa\\AppData\\Local\\Temp\\claude\\c--Users-aa-Desktop-Cafe-cafe-site\\1c80965d-6746-4ac6-aedb-fd4bc588c93d\\scratchpad\\fix2-1913.png"
+}
+```
+
+</details>
+
+
+---
+
+## User <sup>8/27/2026, 4:08:39 PM</sup>
+
+
+---
+
+## Assistant <sup>8/27/2026, 4:08:46 PM</sup>
+
+That's properly composed now — the headline is back to three lines, everything sits clear of the header, and the whole block is vertically balanced with room to breathe. Let me confirm mobile and the story beats didn't regress:
+
+
+---
+
+## Assistant <sup>8/27/2026, 4:08:47 PM</sup>
+
+<details>
+<summary>Tool: <code>Read</code></summary>
+
+```json
+{
+  "file_path": "C:\\Users\\aa\\AppData\\Local\\Temp\\claude\\c--Users-aa-Desktop-Cafe-cafe-site\\1c80965d-6746-4ac6-aedb-fd4bc588c93d\\scratchpad\\fix-mob.png"
+}
+```
+
+</details>
+
+
+---
+
+## User <sup>8/27/2026, 4:08:48 PM</sup>
+
+
+---
+
+## Assistant <sup>8/27/2026, 4:08:54 PM</sup>
+
+Mobile is unaffected — copy at top, cup and beans clear below. Let me run the build:
+
+
+---
+
+## Assistant <sup>8/27/2026, 4:08:55 PM</sup>
+
+<details>
+<summary>Tool: <code>Bash</code></summary>
+
+```json
+{
+  "command": "cd \"c:/Users/aa/Desktop/Cafe/cafe-site\" && npx eslint src 2>&1 | tail -5 && echo LINT-OK && npx next build 2>&1 | tail -8",
+  "description": "Lint and production build",
+  "timeout": 600000
+}
+```
+
+</details>
+
+
+---
+
+## User <sup>8/27/2026, 4:09:25 PM</sup>
+
+<details>
+<summary>Tool Result</summary>
+
+```
+LINT-OK
+Route (app)
+┌ ○ /
+├ ○ /_not-found
+└ ○ /home2
+
+
+○  (Static)  prerendered as static content
+```
+
+</details>
+
+
+---
+
+## Assistant <sup>8/27/2026, 4:09:39 PM</sup>
+
+Fixed. Two changes, both in [CoffeeScrollHero.tsx](src/components/sections/CoffeeScrollHero.tsx).
+
+## What was wrong
+
+I reproduced it at your exact window size (1913×833) and measured the collision:
+
+| element | before | after |
+|---|---|---|
+| header bar bottom | 94 | 94 |
+| eyebrow top | **54** ← overlapping | **206** |
+| origin line bottom | 779 | 731 (102px clearance) |
+
+Two compounding causes:
+
+**1. The copy layer centred in the full viewport.** It used `absolute inset-0`, which ignores the fixed header entirely. On a tall window there's enough slack that nothing collides; at 833px the block grew upward straight into the logo and nav. Now it's inset from the top by the header's height, so it centres in the space actually available.
+
+**2. The headline scaled on width only.** `clamp(3rem, 7vw, 7.5rem)` meant a *wide but short* window got near-maximum type with no height to hold it — hence the four-line wrap crowding both edges. It now scales on whichever is tighter, width or height: `clamp(2.6rem, min(7vw, 10.5vh), 7.5rem)`. Back to three lines.
+
+## Verified
+No overlap and no clipping at 1913×833, 1440×900, 1280×720, and 1920×1080. Mobile (440×956) unchanged. Lint and `next build` clean.
+
+Worth noting this only ever affected the *scroll* hero on `/` — the still hero on `/home2` centres a shorter copy block and never hit it. If you spot the same crowding there at some size, tell me and I'll apply the same treatment.
 
 
 ---

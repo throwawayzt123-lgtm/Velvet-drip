@@ -407,7 +407,11 @@ export default function CoffeeScrollHero() {
         )}
 
         {/* ── Copy, held in the negative space on the left ─────────────── */}
-        <div className="pointer-events-none absolute inset-0 z-10 flex items-center max-sm:items-start max-sm:pt-24">
+        {/* The header is fixed and overlays the stage, so the copy centres in
+            the space *below* it rather than in the raw viewport. Without the
+            top inset, a short landscape window (e.g. 1913x833) pushes the
+            eyebrow up under the logo and nav. */}
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 top-[104px] z-10 flex items-center max-sm:top-0 max-sm:items-start max-sm:pt-24">
           <div className="mx-auto w-full max-w-[1440px] px-12 max-lg:px-8 max-sm:px-5">
             {/* Opening lockup — the home hero's own content and hierarchy. */}
             <div
@@ -422,7 +426,10 @@ export default function CoffeeScrollHero() {
 
               <h1
                 ref={heading}
-                className="mt-8 max-w-[14ch] font-display text-[clamp(3rem,7vw,7.5rem)] font-light leading-[0.94] tracking-[-0.02em] text-cream drop-shadow-[0_4px_26px_rgb(8_5_3/0.95)] max-sm:mx-auto max-sm:mt-5"
+                /* Sized against height as well as width: on a wide-but-short
+                   window (1913x833) a pure vw scale produced a four-line
+                   headline that crowded the header and the origin line. */
+                className="mt-8 max-w-[16ch] font-display text-[clamp(2.6rem,min(7vw,10.5vh),7.5rem)] font-light leading-[0.96] tracking-[-0.02em] text-cream drop-shadow-[0_4px_26px_rgb(8_5_3/0.95)] max-sm:mx-auto max-sm:mt-5 max-sm:max-w-none"
               >
                 A slow ritual, <em className="text-gilded italic">poured</em> with
                 intent.

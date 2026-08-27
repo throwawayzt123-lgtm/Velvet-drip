@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 
-import CoffeeScrollHero from "@/components/sections/CoffeeScrollHero";
+import Hero from "@/components/sections/Hero";
 import Marquee from "@/components/sections/Marquee";
 import Story from "@/components/sections/Story";
 import Menu from "@/components/sections/Menu";
@@ -12,9 +12,9 @@ import Visit from "@/components/sections/Visit";
 import { BRAND } from "@/lib/site";
 
 export const metadata: Metadata = {
-  title: `${BRAND.name} — The Pour`,
+  title: `${BRAND.name} — The Still Life`,
   description:
-    "A scroll-driven cinematic pour: the cup lifts from the table, tilts, and empties toward you.",
+    "The composed opening: a single cup caught mid-pour, held against the dark.",
 };
 
 /**
@@ -24,7 +24,7 @@ export const metadata: Metadata = {
 export default function Home2() {
   return (
     <main>
-      <CoffeeScrollHero />
+      <Hero />
       <Marquee />
       <Story />
       <Menu />

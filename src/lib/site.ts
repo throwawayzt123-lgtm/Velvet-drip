@@ -1,13 +1,13 @@
 /** All copy + content for the site, kept out of the components. */
 
 export const BRAND = {
-  name: "Aurélia",
+  name: "Velvet Drip",
   tagline: "Coffee Atelier",
   established: "EST. SPECIALITY · 2016",
   address: "18 Marlowe Lane, Fitzrovia, London W1T",
   hours: "Mon–Fri 07:00–19:00 · Sat–Sun 08:00–18:00",
   phone: "+44 20 7946 0812",
-  email: "atelier@aurelia.coffee",
+  email: "contact@nofilter.coffee",
 } as const;
 
 export const NAV_LINKS = [
