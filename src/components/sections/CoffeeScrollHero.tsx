@@ -180,11 +180,21 @@ export default function CoffeeScrollHero() {
             scrollTrigger: {
               trigger: root.current,
               start: "top top",
-              end: "bottom bottom",
+              /* Fixed pixel distance, NOT "bottom bottom".
+                 When mobile browser chrome slides away, innerHeight grows and
+                 an svh-sized section grows with it — by 3x the change, since
+                 it is 300svh — while the pinned stage keeps its measured pixel
+                 height. Deriving the end from the section therefore moved the
+                 whole pin range mid-scroll and the page lurched. Pinning for a
+                 distance that does not depend on the section's height keeps
+                 the two in agreement. */
+              end: () =>
+                "+=" + Math.round(window.innerHeight * (phone ? 2 : 3.2)),
               pin: stage.current,
               pinSpacing: false, // the section already reserves the scroll length
               scrub: true,
               invalidateOnRefresh: true,
+              anticipatePin: 1,
               onRefresh: () => {
                 painted.current = -1;
                 paint(playhead.frame);
@@ -325,16 +335,21 @@ export default function CoffeeScrollHero() {
       ref={root}
       id="home"
       /* The tall track is what the pinned stage scrubs against. Phones get a
-         shorter throw so the sequence does not overstay its welcome. */
+         shorter throw so the sequence does not overstay its welcome.
+         `lvh` (large viewport height) is deliberate: it is the one viewport
+         unit that does NOT change when mobile browser chrome slides in and
+         out, so this track stays the same height as the pin distance measured
+         above. `vh`/`svh` here caused the page to lurch on every chrome
+         transition. The 1x stage height is added on top of the pin distance. */
       className={
         reduced
           ? "relative bg-ink"
-          : "relative h-[420svh] bg-ink max-lg:h-[360svh] max-sm:h-[300svh]"
+          : "relative h-[420lvh] bg-ink max-lg:h-[420lvh] max-sm:h-[300lvh]"
       }
     >
       <div
         ref={stage}
-        className="grain relative h-[100svh] w-full overflow-hidden bg-ink"
+        className="grain relative h-[100lvh] w-full overflow-hidden bg-ink"
       >
         {/* ── The sequence ────────────────────────────────────────────── */}
         <div className="absolute inset-0">

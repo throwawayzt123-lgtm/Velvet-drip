@@ -50,7 +50,12 @@ export default function MotionProvider({
         content: "#smooth-content",
         smooth: 1.15,
         effects: true, // enables data-speed / data-lag parallax
-        smoothTouch: 0, // native momentum on touch devices
+        /* Deliberately NOT smoothTouch: 0. On a touch-only device that sets
+           smoothDuration to 0, which leaves the whole rig inert — the wrapper
+           never becomes fixed/overflow-hidden — and any transform-pinned
+           section then drifts instead of holding. A short duration keeps
+           native-feeling momentum while the rig stays live. */
+        smoothTouch: 0.1,
         normalizeScroll: false,
         ignoreMobileResize: true,
       });
