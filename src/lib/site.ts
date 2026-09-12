@@ -195,12 +195,12 @@ export const STATS = [
 
 /**
  * The cinematic asset is an image sequence, not a video: 240 frames of
- * 1280×720 living in `public/Frames`. Scrubbing decoded JPEGs on a canvas is
+ * 1280×720 living in `public/Frames`. Scrubbing decoded frames on a canvas is
  * frame-accurate and sidesteps the seek latency of `video.currentTime`.
  */
 export const COFFEE_SEQUENCE = {
   path: (n: number) =>
-    `/Frames/ezgif-frame-${String(n).padStart(3, "0")}.jpg`,
+    `/Frames/ezgif-frame-${String(n).padStart(3, "0")}.webp`,
   first: 1,
   last: 240,
   width: 1280,
