@@ -33,6 +33,13 @@ const subscribeMotion = (onChange: () => void) => {
 };
 const readMotion = () => window.matchMedia(MOTION_QUERY).matches;
 
+/** requestIdleCallback with a Safari-safe fallback. */
+const requestIdleCallbackSafe = (fn: () => void) => {
+  const ric = (window as Window & typeof globalThis).requestIdleCallback;
+  if (typeof ric === "function") ric(fn, { timeout: 1500 });
+  else window.setTimeout(fn, 200);
+};
+
 /**
  * Scroll-scrubbed cinematic hero.
  *
@@ -61,6 +68,7 @@ export default function CoffeeScrollHero() {
 
   const reduced = useSyncExternalStore(subscribeMotion, readMotion, () => false);
   const [loaded, setLoaded] = useState(false);
+  const [firstFrameReady, setFirstFrameReady] = useState(false);
 
   /** Paints a frame, falling back to the nearest one already decoded. */
   const paint = useCallback((index: number) => {
@@ -86,8 +94,10 @@ export default function CoffeeScrollHero() {
   }, []);
 
   /* ── Preload ───────────────────────────────────────────────────────────
-     Frame 1 is fetched first and painted the moment it lands, so the café
-     scene is on screen instead of an empty canvas. */
+     Two stages, because LCP depends on it. The opening frame is fetched alone
+     and at high priority; as soon as it paints the veil lifts and the headline
+     can be measured. Only then does the remaining sequence start downloading,
+     so ~8 MB of WebP never competes with CSS, JS and the LCP paint. */
   useEffect(() => {
     /* Tracked locally so teardown never has to read a ref that may have moved
        on by the time cleanup runs. */
@@ -96,42 +106,67 @@ export default function CoffeeScrollHero() {
     let cursor = 0;
     let done = 0;
 
-    /* Halving the sequence on phones saves ~3 MB; the shorter mobile scroll
+    /* Halving the sequence on phones saves ~4 MB; the shorter mobile scroll
        distance means the dropped frames are never missed. */
-    const step =
-      typeof window !== "undefined" && window.matchMedia("(max-width: 640px)").matches
-        ? 2
-        : 1;
+    const step = window.matchMedia("(max-width: 640px)").matches ? 2 : 1;
 
     const queue: number[] = [];
     for (let i = 0; i < TOTAL; i += step) queue.push(i);
     if (queue[queue.length - 1] !== TOTAL - 1) queue.push(TOTAL - 1);
 
-    const next = () => {
+    const load = (i: number, priority: "high" | "low") =>
+      new Promise<void>((resolve) => {
+        const img = new Image();
+        img.decoding = "async";
+        img.fetchPriority = priority;
+
+        const settle = () => {
+          if (!cancelled) {
+            ready.current[i] = img.naturalWidth > 0;
+            done += 1;
+            if (loaderBar.current) {
+              loaderBar.current.style.transform = `scaleX(${done / queue.length})`;
+            }
+            if (ready.current[i] && painted.current < 0) paint(i);
+            if (done >= queue.length) setLoaded(true);
+          }
+          resolve();
+        };
+
+        img.onload = settle;
+        img.onerror = settle;
+        img.src = COFFEE_SEQUENCE.path(COFFEE_SEQUENCE.first + i);
+        frames.current[i] = img;
+        opened.push(img);
+      });
+
+    const pump = () => {
       if (cancelled || cursor >= queue.length) return;
       const i = queue[cursor++];
-      const img = new Image();
-      img.decoding = "async";
-
-      const settle = () => {
-        if (cancelled) return;
-        ready.current[i] = img.naturalWidth > 0;
-        done += 1;
-        const pct = done / queue.length;
-        if (loaderBar.current) loaderBar.current.style.transform = `scaleX(${pct})`;
-        if (ready.current[i] && painted.current < 0) paint(i);
-        if (done === queue.length) setLoaded(true);
-        next();
-      };
-
-      img.onload = settle;
-      img.onerror = settle;
-      img.src = COFFEE_SEQUENCE.path(COFFEE_SEQUENCE.first + i);
-      frames.current[i] = img;
-      opened.push(img);
+      if (ready.current[i] !== undefined) return pump();
+      void load(i, "low").then(pump);
     };
 
-    for (let c = 0; c < CONCURRENCY; c++) next();
+    /* Stage 1 — the opening frame, on its own. */
+    void load(queue[0], "high").then(() => {
+      if (cancelled) return;
+      setFirstFrameReady(true);
+      cursor = 1;
+
+      /* Stage 2 — the rest, once the browser is past the critical work. */
+      const startBulk = () => {
+        if (cancelled) return;
+        for (let c = 0; c < CONCURRENCY; c++) pump();
+      };
+
+      if (document.readyState === "complete") {
+        requestIdleCallbackSafe(startBulk);
+      } else {
+        window.addEventListener("load", () => requestIdleCallbackSafe(startBulk), {
+          once: true,
+        });
+      }
+    });
 
     return () => {
       cancelled = true;
@@ -142,19 +177,27 @@ export default function CoffeeScrollHero() {
     };
   }, [paint]);
 
-  /* Dismiss the loading veil once every frame is decoded. */
+  /* Lift the veil as soon as the FIRST frame is on the canvas — not when all
+     240 have decoded. The veil is opaque and covers the headline, so gating it
+     on the full sequence made LCP wait for ~8 MB of WebP. Scrubbing degrades
+     gracefully meanwhile: `paint` falls back to the nearest decoded frame. */
   useGSAP(
     () => {
-      if (!loaded || !loader.current) return;
+      if (!firstFrameReady || !loader.current) return;
       gsap.to(loader.current, {
         autoAlpha: 0,
-        duration: 0.7,
+        duration: 0.45,
         ease: "power2.out",
-        onComplete: () => ScrollTrigger.refresh(),
       });
     },
-    { dependencies: [loaded] },
+    { dependencies: [firstFrameReady] },
   );
+
+  /* Once the whole sequence is in, re-measure: the pin distance is derived
+     from element geometry that may have settled since. */
+  useEffect(() => {
+    if (loaded) ScrollTrigger.refresh();
+  }, [loaded]);
 
   /* ── The scroll timeline ──────────────────────────────────────────────── */
   useGSAP(
@@ -282,11 +325,11 @@ export default function CoffeeScrollHero() {
 
           gsap
             .timeline({ defaults: { ease: "power4.out" } })
-            .from("[data-intro-eyebrow]", { y: 22, autoAlpha: 0, duration: 0.9 }, 0.15)
+            .from("[data-intro-eyebrow]", { y: 22, opacity: 0, duration: 0.9 }, 0.15)
             .from(split.lines, { yPercent: 115, opacity: 0, duration: 1.2, stagger: 0.11 }, 0.3)
-            .from("[data-intro-lede]", { y: 26, autoAlpha: 0, duration: 1 }, 0.8)
-            .from("[data-intro-cta]", { y: 22, autoAlpha: 0, duration: 0.9, stagger: 0.09 }, 0.95)
-            .from("[data-intro-meta]", { y: 18, autoAlpha: 0, duration: 0.9 }, 1.1);
+            .from("[data-intro-lede]", { y: 26, opacity: 0, duration: 1 }, 0.8)
+            .from("[data-intro-cta]", { y: 22, opacity: 0, duration: 0.9, stagger: 0.09 }, 0.95)
+            .from("[data-intro-meta]", { y: 18, opacity: 0, duration: 0.9 }, 1.1);
 
           return () => split.revert();
         },

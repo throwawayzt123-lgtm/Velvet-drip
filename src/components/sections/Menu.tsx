@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useRef, useState } from "react";
 import { gsap, useGSAP, ScrollTrigger, prefersReducedMotion } from "@/lib/gsap";
+import { useLazyMotion } from "@/lib/useLazyMotion";
 import Eyebrow from "@/components/ui/Eyebrow";
 import GoldButton from "@/components/ui/GoldButton";
 import TiltCard from "@/components/ui/TiltCard";
@@ -16,8 +17,11 @@ export default function Menu() {
   const items = MENU.filter((m) => filter === "All" || m.category === filter);
 
   /* Cards fly in on first sight, and re-deal whenever the filter changes. */
+  const ready = useLazyMotion(root);
+
   useGSAP(
     () => {
+      if (!ready) return;
       if (!grid.current || prefersReducedMotion()) return;
       const cards = grid.current.querySelectorAll("[data-card]");
 
@@ -36,7 +40,7 @@ export default function Menu() {
       );
       ScrollTrigger.refresh();
     },
-    { scope: root, dependencies: [filter] },
+    { scope: root, dependencies: [filter, ready] },
   );
 
   return (

@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useRef } from "react";
 import { gsap, useGSAP, SplitText, prefersReducedMotion } from "@/lib/gsap";
+import { useLazyMotion } from "@/lib/useLazyMotion";
 import Eyebrow from "@/components/ui/Eyebrow";
 import { ORIGINS } from "@/lib/site";
 
@@ -11,8 +12,11 @@ export default function Origins() {
   const root = useRef<HTMLElement>(null);
   const quote = useRef<HTMLParagraphElement>(null);
 
+  const ready = useLazyMotion(root);
+
   useGSAP(
     () => {
+      if (!ready) return;
       if (prefersReducedMotion()) return;
 
       /* The quote lights up word by word as it crosses the viewport. */
@@ -36,7 +40,7 @@ export default function Origins() {
 
       return () => split.revert();
     },
-    { scope: root },
+    { scope: root, dependencies: [ready] },
   );
 
   return (

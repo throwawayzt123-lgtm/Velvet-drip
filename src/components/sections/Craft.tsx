@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useRef } from "react";
 import { gsap, useGSAP, prefersReducedMotion } from "@/lib/gsap";
+import { useLazyMotion } from "@/lib/useLazyMotion";
 import Eyebrow from "@/components/ui/Eyebrow";
 import { CRAFT_STEPS } from "@/lib/site";
 
@@ -17,8 +18,11 @@ export default function Craft() {
   const track = useRef<HTMLDivElement>(null);
   const bar = useRef<HTMLDivElement>(null);
 
+  const ready = useLazyMotion(root);
+
   useGSAP(
     () => {
+      if (!ready) return;
       if (prefersReducedMotion()) return;
       const mm = gsap.matchMedia();
 
@@ -57,7 +61,7 @@ export default function Craft() {
 
       return () => mm.revert();
     },
-    { scope: root },
+    { scope: root, dependencies: [ready] },
   );
 
   return (

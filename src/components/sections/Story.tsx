@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useRef } from "react";
 import { gsap, useGSAP, ScrollTrigger, SplitText, prefersReducedMotion } from "@/lib/gsap";
+import { useLazyMotion } from "@/lib/useLazyMotion";
 import Eyebrow from "@/components/ui/Eyebrow";
 import GoldButton from "@/components/ui/GoldButton";
 import { STATS } from "@/lib/site";
@@ -12,8 +13,11 @@ export default function Story() {
   const heading = useRef<HTMLHeadingElement>(null);
   const seal = useRef<HTMLDivElement>(null);
 
+  const ready = useLazyMotion(root);
+
   useGSAP(
     () => {
+      if (!ready) return;
       if (prefersReducedMotion()) return;
 
       /* Line-by-line rise. Splitting to words would strip the background-clip
@@ -63,7 +67,7 @@ export default function Story() {
       ScrollTrigger.refresh();
       return () => split.revert();
     },
-    { scope: root },
+    { scope: root, dependencies: [ready] },
   );
 
   return (
