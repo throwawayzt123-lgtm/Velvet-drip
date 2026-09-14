@@ -48,10 +48,13 @@ const requestIdleCallbackSafe = (fn: () => void) => {
  * frame-accurate and avoids the seek latency and keyframe dependence of
  * `video.currentTime`, which is what makes video scrubbing feel rubbery.
  *
- * ScrollSmoother (installed globally in MotionProvider) already lerps the
- * scroll position *before* ScrollTrigger reads it, so this timeline uses
- * `scrub: true`. Adding scrub inertia on top would stack two smoothing passes
- * and visibly lag behind the wheel.
+ * Scrub is `true` (no added inertia) on both breakpoints, for different
+ * reasons. On desktop ScrollSmoother already lerps the scroll position before
+ * ScrollTrigger reads it, so a scrub value would stack a second smoothing pass
+ * and lag behind the wheel. On mobile the smoother is deliberately absent —
+ * see MotionProvider — and native scroll wants an immediate response; the
+ * frame index is rounded, so repeated deltas that land on the same frame cost
+ * nothing.
  */
 export default function CoffeeScrollHero() {
   const root = useRef<HTMLElement>(null);
@@ -93,6 +96,22 @@ export default function CoffeeScrollHero() {
     painted.current = i;
   }, []);
 
+  /* Shrink the canvas backing store on phones. Every scrubbed frame is a full
+     drawImage over the whole surface; at 1280×720 that is ~920k pixels of fill
+     per frame for a screen barely 400px wide. Halving each axis cuts it to a
+     quarter and is still well above the display resolution after the
+     object-fit crop. Declared before the preload effect so it runs first and
+     the opening frame is drawn at the right size. */
+  useEffect(() => {
+    const el = canvas.current;
+    if (!el) return;
+    if (!window.matchMedia("(max-width: 640px)").matches) return;
+
+    el.width = Math.round(COFFEE_SEQUENCE.width / 2);
+    el.height = Math.round(COFFEE_SEQUENCE.height / 2);
+    painted.current = -1; // resizing clears the surface
+  }, []);
+
   /* ── Preload ───────────────────────────────────────────────────────────
      Two stages, because LCP depends on it. The opening frame is fetched alone
      and at high priority; as soon as it paints the veil lifts and the headline
@@ -106,9 +125,13 @@ export default function CoffeeScrollHero() {
     let cursor = 0;
     let done = 0;
 
-    /* Halving the sequence on phones saves ~4 MB; the shorter mobile scroll
-       distance means the dropped frames are never missed. */
-    const step = window.matchMedia("(max-width: 640px)").matches ? 2 : 1;
+    /* Phones take every sixth frame: 40 frames (~1.4 MB) instead of 120
+       (~4.2 MB). The full set was the single largest item on mobile and, on a
+       throttled connection, spent ~20 s saturating the network — which delayed
+       everything else on the page far more than a slightly coarser scrub does.
+       `paint` snaps to the nearest decoded frame, so the sequence still runs
+       end to end; it simply steps in larger increments. */
+    const step = window.matchMedia("(max-width: 640px)").matches ? 6 : 1;
 
     const queue: number[] = [];
     for (let i = 0; i < TOTAL; i += step) queue.push(i);

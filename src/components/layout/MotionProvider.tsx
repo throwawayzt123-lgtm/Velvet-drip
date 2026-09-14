@@ -44,21 +44,33 @@ export default function MotionProvider({
         return;
       }
 
-      /* ── Inertial scrolling ─────────────────────────────────────── */
-      const smoother = ScrollSmoother.create({
-        wrapper: "#smooth-wrapper",
-        content: "#smooth-content",
-        smooth: 1.15,
-        effects: true, // enables data-speed / data-lag parallax
-        /* Deliberately NOT smoothTouch: 0. On a touch-only device that sets
-           smoothDuration to 0, which leaves the whole rig inert — the wrapper
-           never becomes fixed/overflow-hidden — and any transform-pinned
-           section then drifts instead of holding. A short duration keeps
-           native-feeling momentum while the rig stays live. */
-        smoothTouch: 0.1,
-        normalizeScroll: false,
-        ignoreMobileResize: true,
-      });
+      /* ── Inertial scrolling — desktop only ──────────────────────────
+         ScrollSmoother works by transforming #smooth-content every frame.
+         That content is the whole page (~700 elements, ~17,000px tall), which
+         a desktop GPU shrugs off but a phone does not: it turns every scroll
+         frame into a full-page composite and is the main reason scrolling
+         drags on mobile. Phones get native scrolling, which is hardware
+         accelerated and already has momentum.
+
+         ScrollTrigger does not need the smoother — without it, triggers use
+         the viewport as scroller and pin via position:fixed, which is both
+         correct and cheaper. `data-speed` parallax is a smoother effect, so it
+         simply doesn't apply on mobile; elements sit at their natural
+         position, which is the right trade for smooth scrolling. */
+      const touch =
+        ScrollTrigger.isTouch === 1 ||
+        window.matchMedia("(hover: none) and (pointer: coarse)").matches;
+
+      const smoother = touch
+        ? null
+        : ScrollSmoother.create({
+            wrapper: "#smooth-wrapper",
+            content: "#smooth-content",
+            smooth: 1.15,
+            effects: true, // enables data-speed / data-lag parallax
+            normalizeScroll: false,
+            ignoreMobileResize: true,
+          });
 
       /* ── Site-wide reveal choreography ──────────────────────────── */
       gsap.utils.toArray<HTMLElement>("[data-reveal]").forEach((el) => {
@@ -123,7 +135,7 @@ export default function MotionProvider({
       /* Web fonts change line heights; re-measure once they land. */
       document.fonts?.ready.then(() => ScrollTrigger.refresh());
 
-      return () => smoother.kill();
+      return () => smoother?.kill();
     },
     { scope: root },
   );

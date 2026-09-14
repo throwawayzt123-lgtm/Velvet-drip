@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-
 import Hero from "@/components/sections/Hero";
 import Marquee from "@/components/sections/Marquee";
 import Story from "@/components/sections/Story";

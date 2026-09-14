@@ -185,6 +185,50 @@
   }
 }
 
+/* ==========================================================================
+   MOBILE PAINT BUDGET
+   These three effects are nearly free on a desktop GPU and brutally expensive
+   on a phone, because each one re-rasterises on every scrolled frame:
+     · mix-blend-mode  — forces an isolated stacking context and per-pixel blend
+     · backdrop-filter — samples and blurs everything painted behind the element
+     · very large blur radii on big elements
+   Dropping them below 640px is what makes scrolling smooth; the design reads
+   essentially the same at that size, where the grain and glass are barely
+   perceptible anyway.
+   ========================================================================== */
+@media (width <= 40rem) {
+  .grain::after {
+    display: none;
+  }
+
+  .pane {
+    backdrop-filter: none;
+    /* Slightly more opaque to compensate for the lost frost. */
+    background-image: linear-gradient(
+      160deg,
+      rgb(70 44 26 / 0.7) 0%,
+      rgb(29 19 12 / 0.92) 45%,
+      rgb(8 5 3 / 0.96) 100%
+    );
+  }
+
+  [class*="backdrop-blur"] {
+    backdrop-filter: none;
+  }
+
+  /* Ambient glows only — matched by their exact radii so the hero's 1px
+     motes and similar fine blurs are left alone. Keeps the colour wash,
+     drops a radius the phone has to rasterise at full size. */
+  .blur-\[70px\],
+  .blur-\[90px\],
+  .blur-\[110px\],
+  .blur-\[120px\],
+  .blur-\[130px\],
+  .blur-\[140px\] {
+    filter: blur(45px);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;

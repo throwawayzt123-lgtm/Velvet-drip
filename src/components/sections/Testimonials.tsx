@@ -92,10 +92,14 @@ export default function Testimonials() {
               key={item.name}
               aria-label={`Show review ${i + 1}`}
               onClick={() => setIndex(i)}
-              className={`h-1 rounded-full transition-all duration-500 ease-[var(--ease-silk)] ${
+              /* Fixed width scaled on the x-axis rather than an animated
+                 `width`: width cannot be composited, so the browser relayouts
+                 every frame and Lighthouse flags it. transform + colour are
+                 both compositor-friendly. */
+              className={`h-1 w-12 origin-left rounded-full transition-[transform,background-color] duration-500 ease-[var(--ease-silk)] ${
                 i === index
-                  ? "w-12 bg-primary"
-                  : "w-5 bg-bark hover:bg-primary/50"
+                  ? "scale-x-100 bg-primary"
+                  : "scale-x-[0.42] bg-bark hover:bg-primary/50"
               }`}
             />
           ))}

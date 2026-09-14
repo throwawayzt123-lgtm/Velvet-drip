@@ -73,8 +73,12 @@ export default function Header() {
       if (!el) return;
       const items = el.querySelectorAll("[data-m-item]");
 
-      /* Freeze the page behind the sheet. */
-      ScrollSmoother.get()?.paused(open);
+      /* Freeze the page behind the sheet. The smoother only exists on
+         desktop now, so mobile — where this menu actually appears — needs the
+         plain overflow lock. */
+      const sm = ScrollSmoother.get();
+      if (sm) sm.paused(open);
+      else document.body.style.overflow = open ? "hidden" : "";
 
       if (open) {
         gsap.set(el, { display: "flex" });
@@ -110,9 +114,10 @@ export default function Header() {
   const go = (e: React.MouseEvent, href: string) => {
     e.preventDefault();
     setOpen(false);
-    /* Release the freeze before we ask the smoother to travel. */
-    ScrollSmoother.get()?.paused(false);
-    scrollToSection(href);
+    /* Closing releases the scroll freeze in the effect above. Travel on the
+       next frame so that has already run — scrolling into a body still set to
+       `overflow: hidden` would go nowhere. */
+    requestAnimationFrame(() => scrollToSection(href));
   };
 
   return (
