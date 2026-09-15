@@ -70,7 +70,7 @@ export default function Testimonials() {
           onMouseLeave={() => setPaused(false)}
           className="mt-10 max-sm:mt-8"
         >
-          <blockquote className="mx-auto max-w-[26ch] font-display text-[clamp(1.6rem,3.1vw,2.9rem)] font-light italic leading-[1.28] text-cream">
+          <blockquote className="mx-auto max-w-[26ch] font-display text-[clamp(1.6rem,3.1vw,2.9rem)] font-medium italic leading-[1.28] text-cream">
             {t.quote}
           </blockquote>
 

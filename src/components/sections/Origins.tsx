@@ -69,7 +69,7 @@ export default function Origins() {
 
         <p
           ref={quote}
-          className="mx-auto mt-12 max-w-[22ch] text-center font-display text-[clamp(2rem,4.6vw,4.4rem)] font-light italic leading-[1.12] text-cream max-sm:mt-8"
+          className="mx-auto mt-12 max-w-[22ch] text-center font-display text-[clamp(2rem,4.6vw,4.4rem)] font-medium italic leading-[1.12] text-cream max-sm:mt-8"
         >
           We know every farm by name, and every farmer knows ours.
         </p>
@@ -84,7 +84,7 @@ export default function Origins() {
               data-reveal-item
               className="group bg-espresso/90 p-8 backdrop-blur-sm transition-colors duration-500 hover:bg-mocha max-sm:p-6"
             >
-              <p className="font-display text-3xl font-light text-cream transition-colors duration-500 group-hover:text-primary max-sm:text-2xl">
+              <p className="font-display text-3xl font-medium text-cream transition-colors duration-500 group-hover:text-primary max-sm:text-2xl">
                 {o.country}
               </p>
               <p className="mt-2 font-sans text-[0.68rem] uppercase tracking-[0.2em] text-primary/80">

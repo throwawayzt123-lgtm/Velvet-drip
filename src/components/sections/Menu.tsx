@@ -61,7 +61,7 @@ export default function Menu() {
             <Eyebrow>The Menu</Eyebrow>
             <h2
               data-reveal="up"
-              className="mt-7 max-w-[18ch] font-display text-[clamp(2.4rem,4.6vw,4.6rem)] font-light leading-[1.02] tracking-[-0.015em] text-cream"
+              className="mt-7 max-w-[18ch] font-display text-[clamp(2.4rem,4.6vw,4.6rem)] font-medium leading-[1.02] tracking-[-0.015em] text-cream"
             >
               Signature pours, <em className="text-gilded italic">plated</em>{" "}
               with care.
@@ -133,7 +133,7 @@ export default function Menu() {
 
                   {/* Copy */}
                   <div className="flex flex-1 flex-col p-7 pt-6 max-sm:p-6">
-                    <h3 className="font-display text-[1.75rem] font-light leading-tight text-cream transition-colors duration-400 group-hover:text-primary">
+                    <h3 className="font-display text-[1.75rem] font-medium leading-tight text-cream transition-colors duration-400 group-hover:text-primary">
                       {item.name}
                     </h3>
                     <p className="mt-3 flex-1 text-[0.9rem] leading-relaxed text-muted">

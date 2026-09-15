@@ -125,17 +125,59 @@ export default function CoffeeScrollHero() {
     let cursor = 0;
     let done = 0;
 
-    /* Phones take every sixth frame: 40 frames (~1.4 MB) instead of 120
-       (~4.2 MB). The full set was the single largest item on mobile and, on a
-       throttled connection, spent ~20 s saturating the network — which delayed
-       everything else on the page far more than a slightly coarser scrub does.
-       `paint` snaps to the nearest decoded frame, so the sequence still runs
-       end to end; it simply steps in larger increments. */
-    const step = window.matchMedia("(max-width: 640px)").matches ? 6 : 1;
+    /* Frame budget. Phones take every sixth frame (40 frames, ~1.4 MB rather
+       than the full ~8 MB); a connection reporting 2G or Save-Data takes far
+       fewer still, because on those links the sequence is the difference
+       between a usable page and an unusable one. `paint` snaps to the nearest
+       decoded frame, so a sparser set still runs end to end — it simply steps
+       in larger increments. */
+    const phone = window.matchMedia("(max-width: 640px)").matches;
+    const conn = (
+      navigator as Navigator & {
+        connection?: { effectiveType?: string; saveData?: boolean };
+      }
+    ).connection;
+    const frugal = Boolean(
+      conn && (conn.saveData || /(^|-)2g$/.test(conn.effectiveType ?? "")),
+    );
 
+    const step = frugal ? 20 : phone ? 6 : 1;
+
+    const picked: number[] = [];
+    for (let i = 0; i < TOTAL; i += step) picked.push(i);
+    if (picked[picked.length - 1] !== TOTAL - 1) picked.push(TOTAL - 1);
+
+    /* Fetch order matters as much as frame count on a slow link. Loading
+       sequentially means that after N frames you hold the first N — so
+       scrolling to the middle of the scrub shows the opening frame and the
+       animation appears stuck. Bisecting instead (ends first, then midpoints,
+       then quarters…) keeps whatever has arrived spread evenly across the
+       whole timeline, so every scroll position has a near neighbour and the
+       sequence degrades into a coarser version of itself rather than a
+       frozen one. */
     const queue: number[] = [];
-    for (let i = 0; i < TOTAL; i += step) queue.push(i);
-    if (queue[queue.length - 1] !== TOTAL - 1) queue.push(TOTAL - 1);
+    {
+      const seen = new Set<number>();
+      const push = (k: number) => {
+        if (k >= 0 && k < picked.length && !seen.has(k)) {
+          seen.add(k);
+          queue.push(picked[k]);
+        }
+      };
+      push(0);
+      push(picked.length - 1);
+      let spans: Array<[number, number]> = [[0, picked.length - 1]];
+      while (spans.length) {
+        const next: Array<[number, number]> = [];
+        for (const [lo, hi] of spans) {
+          if (hi - lo < 2) continue;
+          const mid = (lo + hi) >> 1;
+          push(mid);
+          next.push([lo, mid], [mid, hi]);
+        }
+        spans = next;
+      }
+    }
 
     const load = (i: number, priority: "high" | "low") =>
       new Promise<void>((resolve) => {
@@ -206,14 +248,23 @@ export default function CoffeeScrollHero() {
      gracefully meanwhile: `paint` falls back to the nearest decoded frame. */
   useGSAP(
     () => {
-      if (!firstFrameReady || !loader.current) return;
-      gsap.to(loader.current, {
-        autoAlpha: 0,
-        duration: 0.45,
+      if (!firstFrameReady || !canvas.current) return;
+      gsap.to(canvas.current, {
+        opacity: 1,
+        duration: 0.6,
         ease: "power2.out",
       });
     },
     { dependencies: [firstFrameReady] },
+  );
+
+  /* The progress hairline retires once the sequence is complete. */
+  useGSAP(
+    () => {
+      if (!loaded || !loader.current) return;
+      gsap.to(loader.current, { autoAlpha: 0, duration: 0.5, ease: "power2.out" });
+    },
+    { dependencies: [loaded] },
   );
 
   /* Once the whole sequence is in, re-measure: the pin distance is derived
@@ -373,7 +424,7 @@ export default function CoffeeScrollHero() {
     <>
       <Eyebrow reveal={false}>{beat.eyebrow}</Eyebrow>
       <h2
-        className={`mt-6 font-display text-[clamp(2.2rem,4.4vw,4.4rem)] font-light leading-[1.04] tracking-[-0.015em] text-cream ${
+        className={`mt-6 font-display text-[clamp(2.2rem,4.4vw,4.4rem)] font-medium leading-[1.04] tracking-[-0.015em] text-cream ${
           stacked ? "" : "drop-shadow-[0_4px_26px_rgb(8_5_3/0.95)]"
         }`}
       >
@@ -428,6 +479,10 @@ export default function CoffeeScrollHero() {
             /* object-fit does the cover maths for us, and object-position keeps
                the cup — which sits centre-right — inside the crop. On phones
                the timeline pans this value as the subject drifts left. */
+            /* Starts transparent: on a slow link there is nothing to show for
+               a while, and an empty canvas over the section gradient is less
+               jarring than a black rectangle. Faded in by the effect below. */
+            style={{ opacity: 0 }}
             className="h-full w-full object-cover object-[58%_50%] max-sm:object-[73%_50%]"
           />
         </div>
@@ -495,7 +550,7 @@ export default function CoffeeScrollHero() {
                 /* Sized against height as well as width: on a wide-but-short
                    window (1913x833) a pure vw scale produced a four-line
                    headline that crowded the header and the origin line. */
-                className="mt-8 max-w-[16ch] font-display text-[clamp(2.6rem,min(7vw,10.5vh),7.5rem)] font-light leading-[0.96] tracking-[-0.02em] text-cream drop-shadow-[0_4px_26px_rgb(8_5_3/0.95)] max-sm:mx-auto max-sm:mt-5 max-sm:max-w-none"
+                className="mt-8 max-w-[16ch] font-display text-[clamp(2.6rem,min(7vw,10.5vh),7.5rem)] font-medium leading-[0.96] tracking-[-0.02em] text-cream drop-shadow-[0_4px_26px_rgb(8_5_3/0.95)] max-sm:mx-auto max-sm:mt-5 max-sm:max-w-none"
               >
                 A slow ritual, <em className="text-gilded italic">poured</em> with
                 intent.
@@ -548,21 +603,26 @@ export default function CoffeeScrollHero() {
           </div>
         </div>
 
-        {/* ── Loading veil, in the site's own vocabulary ───────────────── */}
+        {/* ── Loading state ───────────────────────────────────────────────
+            Deliberately NOT an opaque veil over the whole stage. That version
+            hid the headline and CTAs — server-rendered text that is ready in
+            well under a second — behind a black panel until the first frame
+            arrived: 11s of nothing on a slow connection. Now the copy is
+            readable immediately over the section's own gradient, and only a
+            hairline of progress sits at the foot of the stage. The canvas
+            fades itself in when it has something to show. */}
         <div
           ref={loader}
-          className="absolute inset-0 z-20 flex flex-col items-center justify-center gap-5 bg-ink"
+          aria-hidden
+          className="pointer-events-none absolute inset-x-0 bottom-0 z-20 flex flex-col items-center gap-2 pb-8"
         >
-          <p className="font-display text-2xl italic text-primary">
-            {BRAND.name}
-          </p>
-          <div className="h-px w-48 overflow-hidden bg-bark max-sm:w-32">
+          <div className="h-px w-40 overflow-hidden bg-bark/70 max-sm:w-28">
             <div
               ref={loaderBar}
               className="h-full origin-left scale-x-0 bg-gradient-to-r from-primary-deep via-primary to-primary-soft"
             />
           </div>
-          <p className="font-sans text-[0.58rem] uppercase tracking-[0.32em] text-muted">
+          <p className="font-sans text-[0.52rem] uppercase tracking-[0.32em] text-muted">
             Warming the cup
           </p>
         </div>

@@ -35,7 +35,7 @@ export default function Visit() {
 
           <h2
             data-reveal="up"
-            className="mt-7 max-w-[15ch] font-display text-[clamp(2.4rem,4.6vw,4.6rem)] font-light leading-[1.02] tracking-[-0.015em] text-cream"
+            className="mt-7 max-w-[15ch] font-display text-[clamp(2.4rem,4.6vw,4.6rem)] font-medium leading-[1.02] tracking-[-0.015em] text-cream"
           >
             Come and sit <em className="text-gilded italic">a while</em>.
           </h2>
@@ -98,7 +98,7 @@ export default function Visit() {
             <p className="font-sans text-[0.62rem] uppercase tracking-[0.3em] text-primary">
               Reservations
             </p>
-            <h3 className="mt-4 font-display text-4xl font-light leading-tight text-cream max-sm:text-3xl">
+            <h3 className="mt-4 font-display text-4xl font-medium leading-tight text-cream max-sm:text-3xl">
               Reserve a table
             </h3>
             <p className="mt-3 text-[0.9rem] leading-relaxed text-muted">

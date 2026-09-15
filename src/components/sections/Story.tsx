@@ -155,7 +155,7 @@ export default function Story() {
 
           <h2
             ref={heading}
-            className="mt-7 font-display text-[clamp(2.4rem,4.4vw,4.4rem)] font-light leading-[1.03] tracking-[-0.015em] text-cream"
+            className="mt-7 font-display text-[clamp(2.4rem,4.4vw,4.4rem)] font-medium leading-[1.03] tracking-[-0.015em] text-cream"
           >
             Crafted for the <em className="text-gilded italic">quiet</em> hours
             between everything else.
@@ -192,7 +192,7 @@ export default function Story() {
               const suffix = s.value.replace(/[0-9]/g, "");
               return (
                 <div key={s.label} data-reveal-item>
-                  <p className="text-gilded font-display text-4xl font-light leading-none max-sm:text-3xl">
+                  <p className="text-gilded font-display text-4xl font-medium leading-none max-sm:text-3xl">
                     <span data-count={numeric} data-count-suffix={suffix}>
                       {s.value}
                     </span>

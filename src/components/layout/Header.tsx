@@ -13,7 +13,7 @@ import { BRAND, NAV_LINKS } from "@/lib/site";
 function Wordmark() {
   return (
     <span className="flex flex-col leading-none">
-      <span className="font-display text-[1.55rem] italic tracking-wide text-cream max-sm:text-[1.35rem]">
+      <span className="font-display text-[1.55rem] font-semibold italic tracking-wide text-cream max-sm:text-[1.35rem]">
         {BRAND.name}
       </span>
       <span className="mt-1 font-sans text-[0.5rem] uppercase tracking-[0.36em] text-primary/70 max-sm:text-[0.45rem]">
@@ -144,7 +144,7 @@ export default function Header() {
               <span className="font-sans text-[0.6rem] tracking-[0.3em] text-primary/60">
                 0{i + 1}
               </span>
-              <span className="font-display text-5xl font-light text-cream transition-colors duration-300 group-hover:text-primary max-sm:text-4xl">
+              <span className="font-display text-5xl font-medium text-cream transition-colors duration-300 group-hover:text-primary max-sm:text-4xl">
                 {link.label}
               </span>
             </a>

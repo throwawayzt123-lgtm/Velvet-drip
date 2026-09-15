@@ -106,7 +106,7 @@ export default function Craft() {
                     <p className="font-sans text-[0.62rem] uppercase tracking-[0.36em] text-primary">
                       Stage {step.index}
                     </p>
-                    <h3 className="mt-4 font-display text-[clamp(2.6rem,5vw,5rem)] font-light leading-none text-cream">
+                    <h3 className="mt-4 font-display text-[clamp(2.6rem,5vw,5rem)] font-medium leading-none text-cream">
                       {step.title}
                     </h3>
                     <div className="rule-gold mt-7 w-24" />

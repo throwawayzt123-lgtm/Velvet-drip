@@ -30,7 +30,7 @@ export default function Gallery() {
             <Eyebrow>The Room</Eyebrow>
             <h2
               data-reveal="up"
-              className="mt-7 max-w-[16ch] font-display text-[clamp(2.4rem,4.6vw,4.6rem)] font-light leading-[1.02] tracking-[-0.015em] text-cream"
+              className="mt-7 max-w-[16ch] font-display text-[clamp(2.4rem,4.6vw,4.6rem)] font-medium leading-[1.02] tracking-[-0.015em] text-cream"
             >
               Warm brass, low light,{" "}
               <em className="text-gilded italic">long</em> tables.

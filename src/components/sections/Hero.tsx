@@ -209,7 +209,7 @@ export default function Hero() {
 
           <h1
             ref={heading}
-            className="mt-8 max-w-[16ch] font-display text-[clamp(3.2rem,9.2vw,10rem)] font-light leading-[0.92] tracking-[-0.02em] text-cream drop-shadow-[0_4px_26px_rgb(8_5_3/0.95)] max-sm:mt-6"
+            className="mt-8 max-w-[16ch] font-display text-[clamp(3.2rem,9.2vw,10rem)] font-medium leading-[0.92] tracking-[-0.02em] text-cream drop-shadow-[0_4px_26px_rgb(8_5_3/0.95)] max-sm:mt-6"
           >
             A slow ritual, <em className="text-gilded italic">poured</em> with
             intent.
